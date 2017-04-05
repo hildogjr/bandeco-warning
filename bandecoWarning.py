@@ -14,7 +14,8 @@
 
 # --------------- User definitions
 
-importantFoods = ('estrogonofe (?!vegetariano)[\s\S]+', 'carne assada', 'carne assada[\s\S]+farofa', 'cocada','doce de leite','uva','SUCO: Roxo') # Use regular expressions language
+preferedFoods = ('estrogonofe (?!vegetariano)[\s\S]+', 'carne assada', 'carne assada[\s\S]+farofa', 'cocada','doce de leite','uva','SUCO: Roxo') # Use regular expressions language
+notPreferedFoods = ['salsicha']
 
 link = "http://catedral.prefeitura.unicamp.br/cardapio.php"
 #link = "http://www.pfl.unicamp.br/Restaurante/PF/view/site/cardapio.php"
@@ -109,8 +110,11 @@ message = re.sub('o cardápio contém glútem no pão e na salsicha.','',message
 message = re.sub('o cardápio contém glútem no pão.','',message,re.IGNORECASE)
 
 # Look for important foods in the day menu
-for importantFood in importantFoods:
-	if re.search(importantFood,message,re.IGNORECASE):
+for food in preferedFoods:
+	if re.search(food,message,re.IGNORECASE):
 		titulo = '\\o/ ' + titulo
+for food in notPreferedFoods:
+	if re.search(food,message,re.IGNORECASE):
+		titulo = '=( ' + titulo
 
 ballonMessage(titulo,message) # Put message on the screen
