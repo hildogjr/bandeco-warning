@@ -111,6 +111,6 @@ message = re.sub('o cardápio contém glútem no pão.','',message,re.IGNORECASE
 # Look for important foods in the day menu
 for importantFood in importantFoods:
 	if re.search(importantFood,message,re.IGNORECASE):
-		titulo = '\\o/ ' + titulo + '\\o/'
+		titulo = '\\o/ ' + titulo
 
 ballonMessage(titulo,message) # Put message on the screen
