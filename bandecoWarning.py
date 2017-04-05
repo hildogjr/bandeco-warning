@@ -100,6 +100,7 @@ elif len(menus)==2: # Limeira campus' menu
 else:
 	message = 'Error!!!'
 	titulo = 'Cardápio:'
+del menus
 
 # Look for important foods in the day menu
 for importantFood in importantFoods:
