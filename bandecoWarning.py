@@ -102,6 +102,12 @@ else:
 	titulo = 'Cardápio:'
 del menus
 
+# Remove unuserfull messages
+message = re.sub('traga sua caneca!','',message,re.IGNORECASE)
+message = re.sub('o cardápio contém glútem no pão e na barra de cereal.','',message,re.IGNORECASE)
+message = re.sub('o cardápio contém glútem no pão e na salsicha.','',message,re.IGNORECASE)
+message = re.sub('o cardápio contém glútem no pão.','',message,re.IGNORECASE)
+
 # Look for important foods in the day menu
 for importantFood in importantFoods:
 	if re.search(importantFood,message,re.IGNORECASE):
