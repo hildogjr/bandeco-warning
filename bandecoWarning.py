@@ -96,7 +96,7 @@ elif len(menus)==2: # Limeira campus' menu
 		titulo = 'Almoço UNICAMP:'
 	else:
 		message = menus[1]
-		titulo = 'Almoço UNICAMP:'
+		titulo = 'Jantar UNICAMP:'
 else:
 	message = 'Error!!!'
 	titulo = 'Cardápio:'
