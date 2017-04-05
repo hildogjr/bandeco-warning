@@ -36,14 +36,13 @@ def ballonMessage(title,message):
 	#os.path.dirname(os.path.abspath(__file__))
 	#os.getcwd()
 	if platform.system()=='Linux':
-		#os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical') # Linux-Ubuntu ballon notification
 		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMP.png"') # Linux-Ubuntu ballon notification
 	elif platform.system()=='Windows':
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical -i '+os.getcwd()+'/logoUNICAMP.png') # Not tested
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMP.png"') # Linux-Ubuntu ballon notification
 	elif platform.system()=='Darwin':
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical -i '+os.getcwd()+'/logoUNICAMP.png') # Not tested
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMP.png"') # Linux-Ubuntu ballon notification
 	else: # Not tested
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical -i '+os.getcwd()+'/logoUNICAMP.png')
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMP.png"') # Linux-Ubuntu ballon notification
 
 juiceRealName={'uva':'Roxo','abacaxi':'Plutônio','limão':'Branco','caju':'Branco 2','tangerina':'Laranja','laranja':'Amarelo 1','maracujá':'Amarelo 2','manga':'Amarelo 3'}
 
