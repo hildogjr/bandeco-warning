@@ -14,7 +14,7 @@
 
 # --------------- User definitions
 
-importantFoods = ('estrogonofe (?!vegetariano)[\s\S]+', 'carne assada', 'carne assada[\s\S]+farofa', 'cocada','doce de leite','uva','SUCO: Roxo')
+importantFoods = ('estrogonofe (?!vegetariano)[\s\S]+', 'carne assada', 'carne assada[\s\S]+farofa', 'cocada','doce de leite','uva','SUCO: Roxo') # Use regular expressions language
 
 link = "http://catedral.prefeitura.unicamp.br/cardapio.php"
 #link = "http://www.pfl.unicamp.br/Restaurante/PF/view/site/cardapio.php"
@@ -84,10 +84,11 @@ message=''
 if len(menus)==4: # Campinas campus' menu
 	#message = 'ALMOÇO:\r\n' +  menus[0] + 'ALMOÇO VEGETARIANO:\r\n' + menus[1] + '\r\n\r\nJANTAR:\r\n' + menus[2] + '\r\n' + 'JANTAR VEGETARIANO:\r\n' + menus[3]
 	if datetime.now().hour < timeLunchFinish:
-		message = menus[0] + 'VEGETARIANO: ' + re.findall('([\S\s]+)\r\nSUCO: ',menus[1],re.IGNORECASE)[0]
+		message = menus[0] + '\r\nVEGETARIANO: ' #+ re.findall('([\S\s]+)\r\nSUCO: ',menus[1],re.IGNORECASE)[0]
+		message = re.sub('\r\nSUCO: ', ' - SUCO: ', message)
 		titulo = 'Almoço UNICAMP:'
 	else:
-		message = menus[2] + 'VEGETARIANO: ' + re.findall('([\S\s]+)\r\nSUCO: ',menus[3],re.IGNORECASE)[0]
+		message = menus[2] + '\r\nVEGETARIANO: ' + re.findall('([\S\s]+)\r\nSUCO: ',menus[3],re.IGNORECASE)[0]
 		titulo = 'Jantar UNICAMP:'
 elif len(menus)==2: # Limeira campus' menu
 	#message = 'ALMOÇO:\r\n' +  menus[0] + '\r\n\r\nJANTAR:\r\n' + menus[1]
