@@ -3,6 +3,13 @@
 #
 # Written by Hildo Guillardi Júnior - FEEC - UNICAMP - 05/Apr/2017
 # Python 2.7 + Ubuntu 16.04
+#
+# Installation tips: use the crontab to program the automatic messages
+#	cd . # Actual installation files folder
+#	addcronjob(){( crontab -l -u $USER 2>/dev/null | grep -v -F "$2" ; echo "$1 $2" ) | crontab  -u $USER -}
+#	DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+#	addcronjob "0 11 * * 1-5" "python $DIR/bandecoWarning.py" # Lunch warning
+#	addcronjob "0 17 * * 1-5" "python $DIR/bandecoWarning.py" # Dinner warning
 
 
 # --------------- User definitions
@@ -29,8 +36,8 @@ def ballonMessage(title,message):
 	#os.path.dirname(os.path.abspath(__file__))
 	#os.getcwd()
 	if platform.system()=='Linux':
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical') # Linux-Ubuntu ballon notification
-		#os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical -i '+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMP.png') # Linux-Ubuntu ballon notification
+		#os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical') # Linux-Ubuntu ballon notification
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMP.png"') # Linux-Ubuntu ballon notification
 	elif platform.system()=='Windows':
 		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical -i '+os.getcwd()+'/logoUNICAMP.png') # Not tested
 	elif platform.system()=='Darwin':
