@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
-# Check the day menu of the university restaurant and print a message in the system using the libraries od the operacional system. Correct the name of the juices ;-)
+# Print a message using the libraries of the operacional system with the next menu of the university's restaurant. Correct the name of the juices ;-)
 #
 # Written by Hildo Guillardi Júnior - FEEC - UNICAMP - 05/Apr/2017
 # Python 2.7 + Ubuntu 16.04
 #
 # Installation tips: use the crontab to program the automatic messages
 #	cd . # Actual installation files folder
-#	addcronjob(){( crontab -l -u $USER 2>/dev/null | grep -v -F "$2" ; echo "$1 $2" ) | crontab  -u $USER -}
+#	addcronjob(){ ( crontab -l -u $USER 2>/dev/null | grep -v -F "$2" ; echo "$1 $2" ) | crontab  -u $USER -;}
+#	removecronjob(){ ( crontab -l -u $USER 2>/dev/null | grep -v -F "$1" ) | crontab  -u $USER -;}
 #	DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-#	addcronjob "0 11 * * 1-5" "python $DIR/bandecoWarning.py" # Lunch warning
-#	addcronjob "0 17 * * 1-5" "python $DIR/bandecoWarning.py" # Dinner warning
+#	addcronjob "0 11,17 * * 1-5" "python '$DIR/bandecoWarning.py'" # Lunch & dinner warning
+#	#addcronjob "0 11 * * 1-5" "python '$DIR/bandecoWarning.py'" # Lunch warning
+#	#addcronjob "0 17 * * 1-5" "python '$DIR/bandecoWarning.py'" # Dinner warning
+#	sudo service crond start
 
 
 # --------------- User definitions
@@ -21,6 +24,7 @@ link = "http://catedral.prefeitura.unicamp.br/cardapio.php"
 #link = "http://www.pfl.unicamp.br/Restaurante/PF/view/site/cardapio.php"
 
 timeLunchFinish = 14
+timeDinnerFinish = 20
 
 # --------------- Libraries
 
@@ -50,6 +54,14 @@ juiceRealName={'uva':'Roxo','abacaxi':'Plutônio','limão':'Branco','caju':'Bran
 
 # --------------- Main program
 
+# If is after the time of the dinner read the next day menu
+if datetime.now().hour > timeDinnerFinish:
+	date_today = datetime.today()
+	shift = 1 + ((date_today.weekday()//4)*(6-date_today.weekday()))
+	#print(date_today+shift)
+	#link = link+'?d='
+
+# Read the page
 f = urllib.urlopen(link)
 page = f.read()
 f.close()
@@ -83,19 +95,25 @@ titulo=''
 message='' 
 if len(menus)==4: # Campinas campus' menu
 	#message = 'ALMOÇO:\r\n' +  menus[0] + 'ALMOÇO VEGETARIANO:\r\n' + menus[1] + '\r\n\r\nJANTAR:\r\n' + menus[2] + '\r\n' + 'JANTAR VEGETARIANO:\r\n' + menus[3]
-	if datetime.now().hour < timeLunchFinish:
+	if datetime.now().hour > timeDinnerFinish: # Next day lunch menu
 		message = menus[0] + '\r\nVEGETARIANO: ' #+ re.findall('([\S\s]+)\r\nSUCO: ',menus[1],re.IGNORECASE)[0]
-		message = re.sub('\r\nSUCO: ', ' - SUCO: ', message)
+		titulo = 'Almoço amanhã UNICAMP:'
+	elif datetime.now().hour < timeLunchFinish: # Lunch menu
+		message = menus[0] + '\r\nVEGETARIANO: ' #+ re.findall('([\S\s]+)\r\nSUCO: ',menus[1],re.IGNORECASE)[0]
 		titulo = 'Almoço UNICAMP:'
-	else:
+	else: # Dinner menu
 		message = menus[2] + '\r\nVEGETARIANO: ' + re.findall('([\S\s]+)\r\nSUCO: ',menus[3],re.IGNORECASE)[0]
-		titulo = 'Jantar UNICAMP:'
+		titulo = 'Jantar UNICAMP:'	
+	message = re.sub('\r\nSUCO: ', ' - SUCO: ', message)
 elif len(menus)==2: # Limeira campus' menu
 	#message = 'ALMOÇO:\r\n' +  menus[0] + '\r\n\r\nJANTAR:\r\n' + menus[1]
-	if datetime.now().hour < timeLunchFinish:
+	if datetime.now().hour > timeDinnerFinish: # Next day lunch menu
+		message = menus[0]
+		titulo = 'Almoço amanhã UNICAMP:'
+	elif datetime.now().hour < timeLunchFinish: # Lunch menu
 		message = menus[0]
 		titulo = 'Almoço UNICAMP:'
-	else:
+	else: # Dinner menu
 		message = menus[1]
 		titulo = 'Jantar UNICAMP:'
 else:
