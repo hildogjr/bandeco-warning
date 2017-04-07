@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 # Print a message using the libraries of the operacional system with the next menu of the university's restaurant. Correct the name of the juices ;-)
 #
@@ -12,7 +13,7 @@
 #	addcronjob "0 11,17 * * 1-5" "python '$DIR/bandecoWarning.py'" # Lunch & dinner warning
 #	#addcronjob "0 11 * * 1-5" "python '$DIR/bandecoWarning.py'" # Lunch warning
 #	#addcronjob "0 17 * * 1-5" "python '$DIR/bandecoWarning.py'" # Dinner warning
-#	sudo service crond start
+#	sudo service cron start
 
 
 # --------------- User definitions
@@ -49,7 +50,7 @@ def ballonMessage(title,message):
 	else: # Not tested
 		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMP.png"') # Linux-Ubuntu ballon notification
 
-juiceRealName={'uva':'Roxo','abacaxi':'Plutônio','limão':'Branco','caju':'Branco 2','tangerina':'Laranja','laranja':'Amarelo 1','maracujá':'Amarelo 2','manga':'Amarelo 3'}
+juiceRealName={'uva':'Roxo','abacaxi':'Plutônio','limão':'Branco','tangerina':'Laranja','laranja':'Amarelo 1','caju':'Amarelo 2','maracujá':'Amarelo 3','manga':'Amarelo 4'}
 
 
 # --------------- Main program
@@ -68,7 +69,8 @@ f.close()
 del f,link
 
 # Separate the diferents menus of the day
-menuSearchString = '<td align="left" valign="top">[\t\n\s]*<table width="[\d%]+" class="fundo_cardapio">([\s\S\d\t\n]+?)<\/table>[\t\n\s]*<\/td>'
+page = re.sub('<!--[\S\s]+?-->','',page) # Remove all the comments to simplify the parse, the Limeira web page is the same of Campinas page but with the vegetarian menu as comment
+menuSearchString = '<td align="left" valign="top">[\t\r\n\s]*<table [width="[\d%]+" ]*class="fundo_cardapio">([\s\S\d\t\r\n]+?)<\/table>[\t\r\n\s]*<\/td>'
 menus = re.findall(menuSearchString,page,re.IGNORECASE)
 del page,menuSearchString
 
@@ -121,11 +123,12 @@ else:
 	titulo = 'Cardápio:'
 del menus
 
-# Remove unuserfull messages
+# Remove/change unuserfull messages
 message = re.sub('traga sua caneca!','',message,re.IGNORECASE)
 message = re.sub('o cardápio contém glútem no pão e na barra de cereal.','',message,re.IGNORECASE)
 message = re.sub('o cardápio contém glútem no pão e na salsicha.','',message,re.IGNORECASE)
 message = re.sub('o cardápio contém glútem no pão.','',message,re.IGNORECASE)
+message = re.sub('não há cardápio cadastrado!','Se vira!',message,re.IGNORECASE)
 
 # Look for important foods in the day menu
 for food in preferedFoods:
