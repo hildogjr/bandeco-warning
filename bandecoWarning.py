@@ -16,18 +16,19 @@
 #	sudo service cron start
 
 
-# --------------- User definitions
+# --------------- User definitions ---------------
 
 preferedFoods = ('estrogonofe (?!vegetariano)[\s\S]+', 'carne assada', 'carne assada[\s\S]+farofa', 'cocada','doce de leite','uva','SUCO: Roxo') # Use regular expressions language
 notPreferedFoods = ['salsicha']
 
-link = "http://catedral.prefeitura.unicamp.br/cardapio.php"
-#link = "http://www.pfl.unicamp.br/Restaurante/PF/view/site/cardapio.php"
+link = "http://catedral.prefeitura.unicamp.br/cardapio.php" # Campinas campus
+#link = "http://www.pfl.unicamp.br/Restaurante/PF/view/site/cardapio.php" # Limeira campus
 
 timeLunchFinish = 14
 timeDinnerFinish = 20
 
-# --------------- Libraries
+
+# --------------- Libraries ---------------
 
 import urllib # To read internet page
 import re # Regular expression
@@ -36,31 +37,41 @@ import platform # To check the system platform
 import datetime # To get system date-time and calculation with than
 from datetime import datetime
 
-# --------------- Especific funcitions, definitions 7 etc...
 
-def ballonMessage(title,message):
+# --------------- Especific funcitions, definitions 7 etc... ---------------
+
+""" Popular names of the juices
+"""
+juiceRealName={'uva':'Roxo','abacaxi':'Plutônio','limão':'Branco','tangerina':'Laranja 1','laranja':'Amarelo 1','caju':'Amarelo 2','maracujá':'Amarelo 3','manga':'Amarelo 4'}
+
+""" Ballon system message
+"""
+def systemMessage(title,message):
 	#os.path.dirname(os.path.abspath(__file__))
 	#os.getcwd()
 	if platform.system()=='Linux':
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMP.png"') # Linux-Ubuntu ballon notification
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMP.png"') # Linux-Ubuntu ballon notification
 	elif platform.system()=='Windows':
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMP.png"') # Linux-Ubuntu ballon notification
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMP.png"') # Linux-Ubuntu ballon notification
 	elif platform.system()=='Darwin':
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMP.png"') # Linux-Ubuntu ballon notification
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMP.png"') # Linux-Ubuntu ballon notification
 	else: # Not tested
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMP.png"') # Linux-Ubuntu ballon notification
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMP.png"') # Linux-Ubuntu ballon notification
 
-juiceRealName={'uva':'Roxo','abacaxi':'Plutônio','limão':'Branco','tangerina':'Laranja','laranja':'Amarelo 1','caju':'Amarelo 2','maracujá':'Amarelo 3','manga':'Amarelo 4'}
+""" HTML character code to the ascii codes dictionary
+"""
+htmlCodesDict = {'&Aacute;':u'\xc1', '&aacute;':u'\xe1', '&Agrave;':u'\xc0', '&Acirc;':u'\xc2', '&agrave;':u'\xe0', '&Acirc;':u'\xc2', '&acirc;':u'\xe2', '&Auml;':u'\xc4', '&auml;':u'\xe4', '&Atilde;':u'\xc3', '&atilde;':u'\xe3', '&Aring;':u'\xc5', '&aring;':u'\xe5', '&Aelig;':u'\xc6', '&aelig;':u'\xe6', '&Ccedil;':u'\xc7', '&ccedil;':u'\xe7', '&Eth;':u'\xd0', '&eth;':u'\xf0', '&Eacute;':u'\xc9', '&eacute;':u'\xe9', '&Egrave;':u'\xc8', '&egrave;':u'\xe8', '&Ecirc;':u'\xca', '&ecirc;':u'\xea', '&Euml;':u'\xcb', '&euml;':u'\xeb', '&Iacute;':u'\xcd', '&iacute;':u'\xed', '&Igrave;':u'\xcc', '&igrave;':u'\xec', '&Icirc;':u'\xce', '&icirc;':u'\xee', '&Iuml;':u'\xcf', '&iuml;':u'\xef', '&Ntilde;':u'\xd1', '&ntilde;':u'\xf1', '&Oacute;':u'\xd3', '&oacute;':u'\xf3', '&Ograve;':u'\xd2', '&ograve;':u'\xf2', '&Ocirc;':u'\xd4', '&ocirc;':u'\xf4', '&Ouml;':u'\xd6', '&ouml;':u'\xf6', '&Otilde;':u'\xd5', '&otilde;':u'\xf5', '&Oslash;':u'\xd8', '&oslash;':u'\xf8', '&szlig;':u'\xdf', '&Thorn;':u'\xde', '&thorn;':u'\xfe', '&Uacute;':u'\xda', '&uacute;':u'\xfa', '&Ugrave;':u'\xd9', '&ugrave;':u'\xf9', '&Ucirc;':u'\xdb', '&ucirc;':u'\xfb', '&Uuml;':u'\xdc', '&uuml;':u'\xfc', '&Yacute;':u'\xdd', '&yacute;':u'\xfd', '&yuml;':u'\xff', '&copy;':u'\xa9', '&reg;':u'\xae', '&trade;':u'\u2122', '&euro;':u'\u20ac', '&cent;':u'\xa2', '&pound;':u'\xa3', '&lsquo;':u'\u2018', '&rsquo;':u'\u2019', '&ldquo;':u'\u201c', '&rdquo;':u'\u201d', '&laquo;':u'\xab', '&raquo;':u'\xbb', '&mdash;':u'\u2014', '&ndash;':u'\u2013', '&deg;':u'\xb0', '&plusmn;':u'\xb1', '&frac14;':u'\xbc', '&frac12;':u'\xbd', '&frac34;':u'\xbe', '&times;':u'\xd7', '&divide;':u'\xf7', '&alpha;':u'\u03b1', '&beta;':u'\u03b2', '&infin':u'\u221e'}
 
 
-# --------------- Main program
+# --------------- Main program ---------------
 
 # If is after the time of the dinner read the next day menu
 if datetime.now().hour > timeDinnerFinish:
 	date_today = datetime.today()
 	shift = 1 + ((date_today.weekday()//4)*(6-date_today.weekday()))
-	#print(date_today+shift)
-	#link = link+'?d='
+	#dayFuture = date_today+shift
+	#print dayFuture
+	#link = link+'?d=dayFuture'
 
 # Read the page
 f = urllib.urlopen(link)
@@ -70,14 +81,17 @@ del f,link
 
 # Separate the diferents menus of the day
 page = re.sub('<!--[\S\s]+?-->','',page) # Remove all the comments to simplify the parse, the Limeira web page is the same of Campinas page but with the vegetarian menu as comment
-menuSearchString = '<td align="left" valign="top">[\t\r\n\s]*<table [width="[\d%]+" ]*class="fundo_cardapio">([\s\S\d\t\r\n]+?)<\/table>[\t\r\n\s]*<\/td>'
+#menuSearchString = '<td align="left" valign="top">[\t\r\n\s]*<table [width="[\d%]+" ]*class="fundo_cardapio">([\s\S\d\t\r\n]+?)<\/table>[\t\r\n\s]*<\/td>' # This just works in Campinas menus web page
+menuSearchString = '<td align="left" valign="top">[\t\r\n\s]*<table[\S\s]*? class="fundo_cardapio">([\s\S\d\t\r\n]+?)<\/table>[\t\r\n\s]*<\/td>'
 menus = re.findall(menuSearchString,page,re.IGNORECASE)
 del page,menuSearchString
 
 # Parse and format the strings
 for count in range(len(menus)):
-	menus[count] = re.sub('\t*\n*\r*(<td>)*(<\/td>)*(<tr>)*(<\/tr>)*(<strong>)*(<\/strong>)*(<br>)*','',menus[count]) # Remove HTML tags
+	menus[count] = re.sub('\t*\n*\r*(<td>)*(<\/td>)*(<tr>)*(<\/tr>)*(<strong>)*(<\/strong>)*(<br>)*(\s\s+)*','',menus[count]) # Remove HTML tags and duplicated spaces
 	menus[count] = menus[count].decode('windows-1252').lower().encode('utf-8') # Change the codec used in the string coding, it was used Windows codec
+	pattern = re.compile('|'.join(htmlCodesDict.keys())) # Compile the pattern to replace the HTML &**; codes found in some pages (Limeira's menus)
+	menus[count] = pattern.sub(lambda x: htmlCodesDict[x.group()], menus[count])
 	#menus[count] = menus[count].lower()
 	menus[count] = re.sub(' *prato principal:',', ',menus[count],re.IGNORECASE)
 	menus[count] = re.sub(' *pts',', pts',menus[count],re.IGNORECASE)
@@ -88,39 +102,42 @@ for count in range(len(menus)):
 	#menus[count] = re.sub('\s*\r\n\s*','\r\n',menus[count])
 	menus[count] = re.sub(' +',' ',menus[count]) # Remove doblo spaces
 	menus[count] = re.sub('^ +','',menus[count]) # Remove initial spaces
+	#pattern = re.compile('|'.join(juiceRealName.keys()))
+	#menus[count] = pattern.sub(lambda x: juiceRealName[x.group()], menus[count])
 	juice = re.findall('\r\nSUCO: (\S+)\r\n',menus[count])
-	if juice[0] in juiceRealName:
+	if juice!=[] and juice[0] in juiceRealName:
 		menus[count] = re.sub('\r\nSUCO: (\S+)\r\n', '\r\nSUCO: '+juiceRealName[juice[0]]+'\r\n' ,menus[count]) # Real name of the juice
+del juice
 
 # Filter the lunch and dinner menu, Campinas and Limeira campus (change the format of the page, Limeira don't have vegeratarian option)
 titulo=''
-message='' 
+message=''
 if len(menus)==4: # Campinas campus' menu
 	#message = 'ALMOÇO:\r\n' +  menus[0] + 'ALMOÇO VEGETARIANO:\r\n' + menus[1] + '\r\n\r\nJANTAR:\r\n' + menus[2] + '\r\n' + 'JANTAR VEGETARIANO:\r\n' + menus[3]
 	if datetime.now().hour > timeDinnerFinish: # Next day lunch menu
+		titulo = 'Almoço amanhã UNICAMP'
 		message = menus[0] + '\r\nVEGETARIANO: ' #+ re.findall('([\S\s]+)\r\nSUCO: ',menus[1],re.IGNORECASE)[0]
-		titulo = 'Almoço amanhã UNICAMP:'
 	elif datetime.now().hour < timeLunchFinish: # Lunch menu
+		titulo = 'Almoço UNICAMP'
 		message = menus[0] + '\r\nVEGETARIANO: ' #+ re.findall('([\S\s]+)\r\nSUCO: ',menus[1],re.IGNORECASE)[0]
-		titulo = 'Almoço UNICAMP:'
 	else: # Dinner menu
-		message = menus[2] + '\r\nVEGETARIANO: ' + re.findall('([\S\s]+)\r\nSUCO: ',menus[3],re.IGNORECASE)[0]
-		titulo = 'Jantar UNICAMP:'	
+		titulo = 'Jantar UNICAMP'
+		message = menus[2] + '\r\nVEGETARIANO: ' + re.findall('([\S\s]+)\r\nSUCO: ',menus[3],re.IGNORECASE)[0]	
 	message = re.sub('\r\nSUCO: ', ' - SUCO: ', message)
 elif len(menus)==2: # Limeira campus' menu
 	#message = 'ALMOÇO:\r\n' +  menus[0] + '\r\n\r\nJANTAR:\r\n' + menus[1]
 	if datetime.now().hour > timeDinnerFinish: # Next day lunch menu
+		titulo = 'Almoço amanhã UNICAMP'
 		message = menus[0]
-		titulo = 'Almoço amanhã UNICAMP:'
 	elif datetime.now().hour < timeLunchFinish: # Lunch menu
+		titulo = 'Almoço UNICAMP'
 		message = menus[0]
-		titulo = 'Almoço UNICAMP:'
 	else: # Dinner menu
+		titulo = 'Jantar UNICAMP'
 		message = menus[1]
-		titulo = 'Jantar UNICAMP:'
 else:
+	titulo = 'Cardápio'
 	message = 'Error!!!'
-	titulo = 'Cardápio:'
 del menus
 
 # Remove/change unuserfull messages
@@ -137,5 +154,7 @@ for food in preferedFoods:
 for food in notPreferedFoods:
 	if re.search(food,message,re.IGNORECASE):
 		titulo = '=( ' + titulo
+del preferedFoods, notPreferedFoods
 
-ballonMessage(titulo,message) # Put message on the screen
+systemMessage(titulo,message) # Put message on the screen
+del titulo, message
