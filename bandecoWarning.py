@@ -45,19 +45,27 @@ from datetime import datetime
 """
 juiceRealName={'uva':'roxo','abacaxi':'plutônio','limão':'branco','tangerina':'laranja 1','laranja':'amarelo 1','caju':'amarelo 2','maracujá':'amarelo 3','manga':'amarelo 4'}
 
+
 """ Ballon system message
 """
 def systemMessage(title,message):
 	#os.path.dirname(os.path.abspath(__file__))
 	#os.getcwd()
 	if platform.system()=='Linux':
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMP.png"') # Linux-Ubuntu ballon notification
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification
 	elif platform.system()=='Windows':
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMP.png"') # Linux-Ubuntu ballon notification
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification
 	elif platform.system()=='Darwin':
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMP.png"') # Linux-Ubuntu ballon notification
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification
 	else: # Not tested
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMP.png"') # Linux-Ubuntu ballon notification
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification
+
+
+""" Capitilize una string: in the begging, after ?/!/. and space but not acronym, even when is using multiple spaces, end/letter of acronyms
+"""
+def capitalize(s):
+	return re.sub(r"(^\s*\w)|(?<!\.\w)([\.?!] *)\w|\w(?:\.\w)|(?<=\w\.)\w", lambda x: x.group().upper(), s, flags=re.M)
+
 
 """ HTML character code to the ascii codes dictionary
 """
@@ -105,12 +113,9 @@ for count in range(len(menus)):
 	juice = re.findall('\r\nSUCO: (\S+)\r\n',menus[count])
 	if juice!=[] and juice[0] in juiceRealName:
 		menus[count] = re.sub('\r\nSUCO: (\S+)\r\n', '\r\nSUCO: '+juiceRealName[juice[0]]+'\r\n' ,menus[count]) # Real name of the juice
-	menus[count] = re.sub('(^\S)|[\.|\?|\!]\s*(\S)|\s+(\S)(?=\.)', lambda x: x.group().upper(), menus[0], flags=re.M) # Capitilize the text
+	menus[count] = capitalize(menus[0]) # Capitilize the text to better presentation
 
 del juice,count
-
-#TODO capitalize any line (with line break and after dot)
-#TODO decode('utf-8) site Limeira
 
 # Filter the lunch and dinner menu, Campinas and Limeira campus (change the format of the page, Limeira don't have vegeratarian option)
 titulo=''
@@ -145,18 +150,18 @@ del menus
 
 # Remove/change unuserfull messages
 message = re.sub('traga sua caneca!','',message,flags=re.IGNORECASE)
-message = re.sub('o cardápio contém glútem no pão e na barra de cereal.','',message,flags=re.IGNORECASE)
-message = re.sub('o cardápio contém glútem no pão e na salsicha.','',message,flags=re.IGNORECASE)
-message = re.sub('o cardápio contém glútem no pão.','',message,flags=re.IGNORECASE)
+message = re.sub('o cardápio contém glútem no pão e na barra de cereal.\s*','',message,flags=re.IGNORECASE)
+message = re.sub('o cardápio contém glútem no pão e na salsicha.\s*','',message,flags=re.IGNORECASE)
+message = re.sub('o cardápio contém glúte[nm] no pão.\s*','',message,flags=re.IGNORECASE)
 message = re.sub('não há cardápio cadastrado!','Se vira!',message,flags=re.IGNORECASE)
 
 # Look for important foods in the day menu
 for food in preferedFoods:
-	if re.search(food,message,re.IGNORECASE):
-		titulo = '\\o/ ' + titulo
+	if re.search(food,message,flags=re.IGNORECASE):
+		titulo = u'\\o/ ' + titulo
 for food in notPreferedFoods:
-	if re.search(food,message,re.IGNORECASE):
-		titulo = '=( ' + titulo
+	if re.search(food,message,flags=re.IGNORECASE):
+		titulo = u'=( ' + titulo
 del preferedFoods, notPreferedFoods
 
 systemMessage(titulo,message) # Put message on the screen
