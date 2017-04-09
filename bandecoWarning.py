@@ -4,6 +4,7 @@
 #
 # Written by Hildo Guillardi Júnior - FEEC - UNICAMP - 05/Apr/2017
 # Python 2.7 + Ubuntu 16.04
+# Modified on /Apri/2017, working with Limeira's menu and capitalize the text.
 #
 # Installation tips: use the crontab to program the automatic messages
 #	cd . # Actual installation files folder
@@ -42,7 +43,7 @@ from datetime import datetime
 
 """ Popular names of the juices
 """
-juiceRealName={'uva':'Roxo','abacaxi':'Plutônio','limão':'Branco','tangerina':'Laranja 1','laranja':'Amarelo 1','caju':'Amarelo 2','maracujá':'Amarelo 3','manga':'Amarelo 4'}
+juiceRealName={'uva':'roxo','abacaxi':'plutônio','limão':'branco','tangerina':'laranja 1','laranja':'amarelo 1','caju':'amarelo 2','maracujá':'amarelo 3','manga':'amarelo 4'}
 
 """ Ballon system message
 """
@@ -83,31 +84,33 @@ del f,link
 page = re.sub('<!--[\S\s]+?-->','',page) # Remove all the comments to simplify the parse, the Limeira web page is the same of Campinas page but with the vegetarian menu as comment
 #menuSearchString = '<td align="left" valign="top">[\t\r\n\s]*<table [width="[\d%]+" ]*class="fundo_cardapio">([\s\S\d\t\r\n]+?)<\/table>[\t\r\n\s]*<\/td>' # This just works in Campinas menus web page
 menuSearchString = '<td align="left" valign="top">[\t\r\n\s]*<table[\S\s]*? class="fundo_cardapio">([\s\S\d\t\r\n]+?)<\/table>[\t\r\n\s]*<\/td>'
-menus = re.findall(menuSearchString,page,re.IGNORECASE)
+menus = re.findall(menuSearchString,page,flags=re.IGNORECASE)
 del page,menuSearchString
 
 # Parse and format the strings
 for count in range(len(menus)):
-	menus[count] = re.sub('\t*\n*\r*(<td>)*(<\/td>)*(<tr>)*(<\/tr>)*(<strong>)*(<\/strong>)*(<br>)*(\s\s+)*','',menus[count]) # Remove HTML tags and duplicated spaces
-	menus[count] = menus[count].decode('windows-1252').lower().encode('utf-8') # Change the codec used in the string coding, it was used Windows codec
+	menus[count] = re.sub('\t*\n*\r*(<td>)*(<\/td>)*(<tr>)*(<\/tr>)*(<strong>)*(<\/strong>)*(<br>)*(\s\s+)*(^\s*)*','',menus[count]) # Remove HTML tags, duplicated and initial spaces
+	menus[count] = menus[count].decode('windows-1252').lower()#.encode('utf-8') # Change the codec used in the string coding, it was used Windows codec
 	pattern = re.compile('|'.join(htmlCodesDict.keys())) # Compile the pattern to replace the HTML &**; codes found in some pages (Limeira's menus)
-	menus[count] = pattern.sub(lambda x: htmlCodesDict[x.group()], menus[count])
-	#menus[count] = menus[count].lower()
-	menus[count] = re.sub(' *prato principal:',', ',menus[count],re.IGNORECASE)
-	menus[count] = re.sub(' *pts',', pts',menus[count],re.IGNORECASE)
-	menus[count] = re.sub(' *salada:',' - ',menus[count],re.IGNORECASE)
-	menus[count] = re.sub(' *sobremesa:','\r\nSOBREMESA: ',menus[count],re.IGNORECASE)
-	menus[count] = re.sub(' *suco:','\r\nSUCO: ',menus[count],re.IGNORECASE)
-	menus[count] = re.sub(' *observações:','\r\n',menus[count],re.IGNORECASE)
+	menus[count] = pattern.sub(lambda x: htmlCodesDict[x.group()], menus[count]).encode('utf-8')
+	menus[count] = re.sub('\s*prato principal:\s*',', ',menus[count],re.IGNORECASE)
+	menus[count] = re.sub('\s*pts',', pts',menus[count],flags=re.IGNORECASE)
+	menus[count] = re.sub('\s*salada:\s*',' - ',menus[count],re.IGNORECASE)
+	menus[count] = re.sub('\s*sobremesa:\s*','\r\nSOBREMESA: ',menus[count],re.IGNORECASE)
+	menus[count] = re.sub('\s*suco:\s*','\r\nSUCO: ',menus[count],re.IGNORECASE)
+	menus[count] = re.sub('\s*observações:\s*','\r\n',menus[count],re.IGNORECASE)
 	#menus[count] = re.sub('\s*\r\n\s*','\r\n',menus[count])
-	menus[count] = re.sub(' +',' ',menus[count]) # Remove doblo spaces
-	menus[count] = re.sub('^ +','',menus[count]) # Remove initial spaces
 	#pattern = re.compile('|'.join(juiceRealName.keys()))
 	#menus[count] = pattern.sub(lambda x: juiceRealName[x.group()], menus[count])
 	juice = re.findall('\r\nSUCO: (\S+)\r\n',menus[count])
 	if juice!=[] and juice[0] in juiceRealName:
 		menus[count] = re.sub('\r\nSUCO: (\S+)\r\n', '\r\nSUCO: '+juiceRealName[juice[0]]+'\r\n' ,menus[count]) # Real name of the juice
-del juice
+	menus[count] = re.sub('(^\S)|[\.|\?|\!]\s*(\S)|\s+(\S)(?=\.)', lambda x: x.group().upper(), menus[0], flags=re.M) # Capitilize the text
+
+del juice,count
+
+#TODO capitalize any line (with line break and after dot)
+#TODO decode('utf-8) site Limeira
 
 # Filter the lunch and dinner menu, Campinas and Limeira campus (change the format of the page, Limeira don't have vegeratarian option)
 titulo=''
@@ -115,7 +118,7 @@ message=''
 if len(menus)==4: # Campinas campus' menu
 	#message = 'ALMOÇO:\r\n' +  menus[0] + 'ALMOÇO VEGETARIANO:\r\n' + menus[1] + '\r\n\r\nJANTAR:\r\n' + menus[2] + '\r\n' + 'JANTAR VEGETARIANO:\r\n' + menus[3]
 	if datetime.now().hour > timeDinnerFinish: # Next day lunch menu
-		titulo = 'Almoço amanhã UNICAMP'
+		titulo = 'Almoço futuro UNICAMP'
 		message = menus[0] + '\r\nVEGETARIANO: ' #+ re.findall('([\S\s]+)\r\nSUCO: ',menus[1],re.IGNORECASE)[0]
 	elif datetime.now().hour < timeLunchFinish: # Lunch menu
 		titulo = 'Almoço UNICAMP'
@@ -127,7 +130,7 @@ if len(menus)==4: # Campinas campus' menu
 elif len(menus)==2: # Limeira campus' menu
 	#message = 'ALMOÇO:\r\n' +  menus[0] + '\r\n\r\nJANTAR:\r\n' + menus[1]
 	if datetime.now().hour > timeDinnerFinish: # Next day lunch menu
-		titulo = 'Almoço amanhã UNICAMP'
+		titulo = 'Almoço futuro UNICAMP'
 		message = menus[0]
 	elif datetime.now().hour < timeLunchFinish: # Lunch menu
 		titulo = 'Almoço UNICAMP'
@@ -141,11 +144,11 @@ else:
 del menus
 
 # Remove/change unuserfull messages
-message = re.sub('traga sua caneca!','',message,re.IGNORECASE)
-message = re.sub('o cardápio contém glútem no pão e na barra de cereal.','',message,re.IGNORECASE)
-message = re.sub('o cardápio contém glútem no pão e na salsicha.','',message,re.IGNORECASE)
-message = re.sub('o cardápio contém glútem no pão.','',message,re.IGNORECASE)
-message = re.sub('não há cardápio cadastrado!','Se vira!',message,re.IGNORECASE)
+message = re.sub('traga sua caneca!','',message,flags=re.IGNORECASE)
+message = re.sub('o cardápio contém glútem no pão e na barra de cereal.','',message,flags=re.IGNORECASE)
+message = re.sub('o cardápio contém glútem no pão e na salsicha.','',message,flags=re.IGNORECASE)
+message = re.sub('o cardápio contém glútem no pão.','',message,flags=re.IGNORECASE)
+message = re.sub('não há cardápio cadastrado!','Se vira!',message,flags=re.IGNORECASE)
 
 # Look for important foods in the day menu
 for food in preferedFoods:
