@@ -113,7 +113,7 @@ for count in range(len(menus)):
 	juice = re.findall('\r\nSUCO: (\S+)\r\n',menus[count])
 	if juice!=[] and juice[0] in juiceRealName:
 		menus[count] = re.sub('\r\nSUCO: (\S+)\r\n', '\r\nSUCO: '+juiceRealName[juice[0]]+'\r\n' ,menus[count]) # Real name of the juice
-	menus[count] = capitalize(menus[0]) # Capitilize the text to better presentation
+	menus[count] = capitalize(menus[count]) # Capitilize the text to better presentation
 
 del juice,count
 
