@@ -64,7 +64,7 @@ def systemMessage(title,message):
 """ Capitilize una string: in the begging, after ?/!/. and space but not acronym, even when is using multiple spaces, end/letter of acronyms
 """
 def capitalize(s):
-	return re.sub(r"(^\s*\w)|(?<!\.\w)([\.?!] *)\w|\w(?:\.\w)|(?<=\w\.)\w", lambda x: x.group().upper(), s, flags=re.M)
+	return re.sub(r"(^\s*\w)|(?<!\.\w)([\.?!]\s*)\w|\w(?:\.\w)|(?<=\w\.)\w", lambda x: x.group().upper(), s, flags=re.M)
 
 
 """ HTML character code to the ascii codes dictionary
@@ -124,14 +124,17 @@ if len(menus)==4: # Campinas campus' menu
 	#message = 'ALMOÇO:\r\n' +  menus[0] + 'ALMOÇO VEGETARIANO:\r\n' + menus[1] + '\r\n\r\nJANTAR:\r\n' + menus[2] + '\r\n' + 'JANTAR VEGETARIANO:\r\n' + menus[3]
 	if datetime.now().hour > timeDinnerFinish: # Next day lunch menu
 		titulo = 'Almoço futuro UNICAMP'
-		message = menus[0] + '\r\nVEGETARIANO: ' #+ re.findall('([\S\s]+)\r\nSUCO: ',menus[1],re.IGNORECASE)[0]
+		message = menus[0] + '\r\nVEGETARIANO: ' + re.findall('([\S\s]+)\r\nSUCO: ',menus[1],re.IGNORECASE)[0]
 	elif datetime.now().hour < timeLunchFinish: # Lunch menu
 		titulo = 'Almoço UNICAMP'
-		message = menus[0] + '\r\nVEGETARIANO: ' #+ re.findall('([\S\s]+)\r\nSUCO: ',menus[1],re.IGNORECASE)[0]
+		message = menus[0] + '\r\nVEGETARIANO: ' + re.findall('([\S\s]+)\r\nSUCO: ',menus[1],re.IGNORECASE)[0]
 	else: # Dinner menu
 		titulo = 'Jantar UNICAMP'
 		message = menus[2] + '\r\nVEGETARIANO: ' + re.findall('([\S\s]+)\r\nSUCO: ',menus[3],re.IGNORECASE)[0]	
-	message = re.sub('\r\nSUCO: ', ' - SUCO: ', message)
+	message = re.sub('\r\nSUCO: ', ' - SUCO: ', message) # Better and short text view, remove duplicated juice information
+	dessert = re.findall('\r\nSOBREMESA:\s*(\w+)?',message,re.IGNORECASE);
+	if len(dessert)==2 and dessert[0]==dessert[1]:
+		message = re.sub('\r\nSOBREMESA:\s*\w+$','',message) # Remove replicated information of dessert (sometimes normal and vegetarian menus have different desserts)
 elif len(menus)==2: # Limeira campus' menu
 	#message = 'ALMOÇO:\r\n' +  menus[0] + '\r\n\r\nJANTAR:\r\n' + menus[1]
 	if datetime.now().hour > timeDinnerFinish: # Next day lunch menu
@@ -146,6 +149,7 @@ elif len(menus)==2: # Limeira campus' menu
 else:
 	titulo = 'Cardápio'
 	message = 'Error!!!'
+
 del menus
 
 # Remove/change unuserfull messages
