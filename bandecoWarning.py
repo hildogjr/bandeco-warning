@@ -51,8 +51,11 @@ juiceRealName={'uva':'roxo','abacaxi':'plutônio','limão':'branco','tangerina':
 def systemMessage(title,message):
 	#os.path.dirname(os.path.abspath(__file__))
 	#os.getcwd()
+	#print os.path.dirname(os.path.abspath(__file__))
 	if platform.system()=='Linux':
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification
+		os.system('eval "export $(egrep -z DBUS_SESSION_BUS_ADDRESS /proc/$(pgrep -u $LOGNAME gnome-session)/environ)"; DISPLAY=:0; notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"')
+		# Necessary to set some enviroment variables
+	#	os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification
 	elif platform.system()=='Windows':
 		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification
 	elif platform.system()=='Darwin':
@@ -118,18 +121,18 @@ for count in range(len(menus)):
 del juice,count
 
 # Filter the lunch and dinner menu, Campinas and Limeira campus (change the format of the page, Limeira don't have vegeratarian option)
-titulo=''
+title=''
 message=''
 if len(menus)==4: # Campinas campus' menu
 	#message = 'ALMOÇO:\r\n' +  menus[0] + 'ALMOÇO VEGETARIANO:\r\n' + menus[1] + '\r\n\r\nJANTAR:\r\n' + menus[2] + '\r\n' + 'JANTAR VEGETARIANO:\r\n' + menus[3]
 	if datetime.now().hour > timeDinnerFinish: # Next day lunch menu
-		titulo = 'Almoço futuro UNICAMP'
+		title = 'Almoço futuro UNICAMP'
 		message = menus[0] + '\r\nVEGETARIANO: ' + re.findall('([\S\s]+)\r\nSUCO: ',menus[1],re.IGNORECASE)[0]
 	elif datetime.now().hour < timeLunchFinish: # Lunch menu
-		titulo = 'Almoço UNICAMP'
+		title = 'Almoço UNICAMP'
 		message = menus[0] + '\r\nVEGETARIANO: ' + re.findall('([\S\s]+)\r\nSUCO: ',menus[1],re.IGNORECASE)[0]
 	else: # Dinner menu
-		titulo = 'Jantar UNICAMP'
+		title = 'Jantar UNICAMP'
 		message = menus[2] + '\r\nVEGETARIANO: ' + re.findall('([\S\s]+)\r\nSUCO: ',menus[3],re.IGNORECASE)[0]	
 	message = re.sub('\r\nSUCO: ', ' - SUCO: ', message) # Better and short text view, remove duplicated juice information
 	dessert = re.findall('\r\nSOBREMESA:\s*(\w+)?',message,re.IGNORECASE);
@@ -138,16 +141,16 @@ if len(menus)==4: # Campinas campus' menu
 elif len(menus)==2: # Limeira campus' menu
 	#message = 'ALMOÇO:\r\n' +  menus[0] + '\r\n\r\nJANTAR:\r\n' + menus[1]
 	if datetime.now().hour > timeDinnerFinish: # Next day lunch menu
-		titulo = 'Almoço futuro UNICAMP'
+		title = 'Almoço futuro UNICAMP'
 		message = menus[0]
 	elif datetime.now().hour < timeLunchFinish: # Lunch menu
-		titulo = 'Almoço UNICAMP'
+		title = 'Almoço UNICAMP'
 		message = menus[0]
 	else: # Dinner menu
-		titulo = 'Jantar UNICAMP'
+		title = 'Jantar UNICAMP'
 		message = menus[1]
 else:
-	titulo = 'Cardápio'
+	title = 'Cardápio'
 	message = 'Error!!!'
 
 del menus
@@ -162,11 +165,11 @@ message = re.sub('não há cardápio cadastrado!','Se vira!',message,flags=re.IG
 # Look for important foods in the day menu
 for food in preferedFoods:
 	if re.search(food,message,flags=re.IGNORECASE):
-		titulo = u'\\o/ ' + titulo
+		title = '\\o/ ' + title
 for food in notPreferedFoods:
 	if re.search(food,message,flags=re.IGNORECASE):
-		titulo = u'=( ' + titulo
+		title = '=( ' + title
 del preferedFoods, notPreferedFoods
 
-systemMessage(titulo,message) # Put message on the screen
-del titulo, message
+systemMessage(title,message) # Put message on the screen
+del title, message
