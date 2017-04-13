@@ -11,15 +11,13 @@
 #	addcronjob(){ ( crontab -l -u $USER 2>/dev/null | grep -v -F "$2" ; echo "$1 $2" ) | crontab  -u $USER -;}
 #	removecronjob(){ ( crontab -l -u $USER 2>/dev/null | grep -v -F "$1" ) | crontab  -u $USER -;}
 #	DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-#	addcronjob "0 11,17 * * 1-5" "python '$DIR/bandecoWarning.py'" # Lunch & dinner warning
-#	#addcronjob "0 11 * * 1-5" "python '$DIR/bandecoWarning.py'" # Lunch warning
-#	#addcronjob "0 17 * * 1-5" "python '$DIR/bandecoWarning.py'" # Dinner warning
+#	addcronjob "15 11,17 * * 1-5" "eval 'export $(egrep -z DBUS_SESSION_BUS_ADDRESS /proc/$(pgrep -u $LOGNAME gnome-session)/environ)'; DISPLAY=:0; python '$DIR/bandecoWarning.py'" # Lunch & dinner warning
 #	sudo service cron start
 
 
 # --------------- User definitions ---------------
 
-preferedFoods = ('estrogonofe (?!vegetariano)[\s\S]+', 'carne assada', 'carne assada[\s\S]+farofa', 'cocada','doce de leite','uva','SUCO: Roxo') # Use regular expressions language
+preferedFoods = ('estrogonofe (?!vegetariano)[\s\S]+', 'carne alessa', 'carne assada', 'carne assada[\s\S]+farofa', 'cocada','doce de leite','uva','SUCO: Roxo') # Use regular expressions language
 notPreferedFoods = ['salsicha']
 
 link = "http://catedral.prefeitura.unicamp.br/cardapio.php" # Campinas campus
@@ -53,9 +51,9 @@ def systemMessage(title,message):
 	#os.getcwd()
 	#print os.path.dirname(os.path.abspath(__file__))
 	if platform.system()=='Linux':
-		os.system('eval "export $(egrep -z DBUS_SESSION_BUS_ADDRESS /proc/$(pgrep -u $LOGNAME gnome-session)/environ)"; DISPLAY=:0; notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"')
+		#os.system('eval "export $(egrep -z DBUS_SESSION_BUS_ADDRESS /proc/$(pgrep -u $LOGNAME gnome-session)/environ)"; DISPLAY=:0; notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"')
 		# Necessary to set some enviroment variables
-	#	os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification
 	elif platform.system()=='Windows':
 		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification
 	elif platform.system()=='Darwin':
