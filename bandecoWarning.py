@@ -154,11 +154,12 @@ else:
 del menus
 
 # Remove/change unuserfull messages
-message = re.sub('traga sua caneca!','',message,flags=re.IGNORECASE)
-message = re.sub('o cardápio contém glútem no pão e na barra de cereal.\s*','',message,flags=re.IGNORECASE)
-message = re.sub('o cardápio contém glútem no pão e na salsicha.\s*','',message,flags=re.IGNORECASE)
-message = re.sub('o cardápio contém glúte[nm] no pão.\s*','',message,flags=re.IGNORECASE)
-message = re.sub('não há cardápio cadastrado!','Se vira!',message,flags=re.IGNORECASE)
+message = re.sub('traga sua caneca\!','',message,flags=re.IGNORECASE)
+message = re.sub('o cardápio contém glútem no pão e na barra de cereal\.\s*','',message,flags=re.IGNORECASE)
+message = re.sub('o cardápio contém glútem no pão e na salsicha\.\s*','',message,flags=re.IGNORECASE)
+message = re.sub('o cardápio contém glúte[nm] no pão[\w\s]*\.\s*','',message,flags=re.IGNORECASE)
+message = re.sub('contém ovos e lactose[\w\s]+\.\s*','',message,flags=re.IGNORECASE)
+message = re.sub('não há cardápio cadastrado\!','Se vira!',message,flags=re.IGNORECASE)
 
 # Look for important foods in the day menu
 for food in preferedFoods:
