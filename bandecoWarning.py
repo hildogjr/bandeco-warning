@@ -8,10 +8,10 @@
 #
 # Installation tips: use the crontab to program the automatic messages
 #	cd . # Actual installation files folder
-#	addcronjob(){ ( crontab -l -u $USER 2>/dev/null | grep -v -F "$2" ; echo "$1 $2" ) | crontab  -u $USER -;}
+#	modifycronjob(){ ( crontab -l -u $USER 2>/dev/null | grep -v -F "$2" ; echo "$1 $2" ) | crontab  -u $USER -;}
 #	removecronjob(){ ( crontab -l -u $USER 2>/dev/null | grep -v -F "$1" ) | crontab  -u $USER -;}
 #	DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-#	addcronjob "15 11,17 * * 1-5" "eval 'export $(egrep -z DBUS_SESSION_BUS_ADDRESS /proc/$(pgrep -u $LOGNAME gnome-session)/environ)'; DISPLAY=:0; python '$DIR/bandecoWarning.py'" # Lunch & dinner warning
+#	modifycronjob "15 11,17 * * 1-5" 'eval "export $(egrep -z DBUS_SESSION_BUS_ADDRESS /proc/$(pgrep -u $LOGNAME gnome-session)/environ)";'" DISPLAY=:0; python '$DIR/bandecoWarning.py'" # Lunch & dinner warning
 #	sudo service cron start
 
 
@@ -160,6 +160,8 @@ message = re.sub('o cardápio contém glútem no pão e na salsicha\.\s*','',mes
 message = re.sub('o cardápio contém glúte[nm] no pão[\w\s]*\.\s*','',message,flags=re.IGNORECASE)
 message = re.sub('contém ovos e lactose[\w\s]+\.\s*','',message,flags=re.IGNORECASE)
 message = re.sub('não há cardápio cadastrado\!','Se vira!',message,flags=re.IGNORECASE)
+message = re.sub('o cardápio vegetariano será servido somente no rs','',message,flags=re.IGNORECASE)
+message = re.sub('(\s*obs:\s*\.)','',message,flags=re.IGNORECASE) # If do not gave any observation, remove "obs:" of the message
 
 # Look for important foods in the day menu
 for food in preferedFoods:
