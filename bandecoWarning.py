@@ -17,7 +17,7 @@
 
 # --------------- User definitions ---------------
 
-preferedFoods = ('estrogonofe (?!vegetariano)[\s\S]+', 'carne alessa', 'carne assada', 'carne assada[\s\S]+farofa', 'cocada','doce de leite','uva','SUCO: Roxo') # Use regular expressions language
+preferedFoods = ('estrogonofe (?!vegetariano)[\s\S]+', 'alm[oô]ndega', 'carne alessa', 'carne assada', 'carne assada[\s\S]+farofa', 'cocada','doce de leite','uva','SUCO: Roxo') # Use regular expressions language
 notPreferedFoods = ['salsicha']
 
 link = "http://catedral.prefeitura.unicamp.br/cardapio.php" # Campinas campus
