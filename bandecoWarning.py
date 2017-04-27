@@ -98,16 +98,17 @@ del page,menuSearchString
 
 # Parse and format the strings
 for count in range(len(menus)):
+	menus[count] = re.sub('((<\/td>[\r\n\s]*<\/tr>[\r\n\s]*<tr>[\r\n\s]*<td>))',', ',menus[count]) # Remove multitables between menu same category lines
 	menus[count] = re.sub('\t*\n*\r*(<td>)*(<\/td>)*(<tr>)*(<\/tr>)*(<strong>)*(<\/strong>)*(<br>)*(\s\s+)*(^\s*)*','',menus[count]) # Remove HTML tags, duplicated and initial spaces
 	menus[count] = menus[count].decode('windows-1252').lower()#.encode('utf-8') # Change the codec used in the string coding, it was used Windows codec
 	pattern = re.compile('|'.join(htmlCodesDict.keys())) # Compile the pattern to replace the HTML &**; codes found in some pages (Limeira's menus)
 	menus[count] = pattern.sub(lambda x: htmlCodesDict[x.group()], menus[count]).encode('utf-8')
-	menus[count] = re.sub('\s*prato principal:\s*',', ',menus[count],re.IGNORECASE)
-	menus[count] = re.sub('\s*pts',', pts',menus[count],flags=re.IGNORECASE)
-	menus[count] = re.sub('\s*salada:\s*',' - ',menus[count],re.IGNORECASE)
-	menus[count] = re.sub('\s*sobremesa:\s*','\r\nSOBREMESA: ',menus[count],re.IGNORECASE)
-	menus[count] = re.sub('\s*suco:\s*','\r\nSUCO: ',menus[count],re.IGNORECASE)
-	menus[count] = re.sub('\s*observações:\s*','\r\n',menus[count],re.IGNORECASE)
+	menus[count] = re.sub(',*\s*prato principal:\s*',', ',menus[count],re.IGNORECASE)
+	menus[count] = re.sub(',*\s*pts',', pts',menus[count],flags=re.IGNORECASE)
+	menus[count] = re.sub(',*\s*salada:\s*',' - ',menus[count],re.IGNORECASE)
+	menus[count] = re.sub(',*\s*sobremesa:\s*','\r\nSOBREMESA: ',menus[count],re.IGNORECASE)
+	menus[count] = re.sub(',*\s*suco:\s*','\r\nSUCO: ',menus[count],re.IGNORECASE)
+	menus[count] = re.sub(',*\s*observações:\s*','\r\n',menus[count],re.IGNORECASE)
 	#menus[count] = re.sub('\s*\r\n\s*','\r\n',menus[count])
 	#pattern = re.compile('|'.join(juiceRealName.keys()))
 	#menus[count] = pattern.sub(lambda x: juiceRealName[x.group()], menus[count])
@@ -155,13 +156,12 @@ del menus
 
 # Remove/change unuserfull messages
 message = re.sub('traga sua caneca\!','',message,flags=re.IGNORECASE)
-message = re.sub('o cardápio contém glútem no pão e na barra de cereal\.\s*','',message,flags=re.IGNORECASE)
-message = re.sub('o cardápio contém glútem no pão e na salsicha\.\s*','',message,flags=re.IGNORECASE)
-message = re.sub('o cardápio contém glúte[nm] no pão[\w\s]*\.\s*','',message,flags=re.IGNORECASE)
+message = re.sub('o cardápio contém glúte[nm][\s\S]+\.\s*','',message,flags=re.IGNORECASE)
+message = re.sub('contém traços de lactose[\s\S]+\.\s*','',message,flags=re.IGNORECASE)
 message = re.sub('contém ovos e lactose[\w\s]+\.\s*','',message,flags=re.IGNORECASE)
-message = re.sub('não há cardápio cadastrado\!','Se vira!',message,flags=re.IGNORECASE)
 message = re.sub('o cardápio vegetariano será servido somente no rs','',message,flags=re.IGNORECASE)
 message = re.sub('(\s*obs:\s*\.)','',message,flags=re.IGNORECASE) # If do not gave any observation, remove "obs:" of the message
+message = re.sub('não há cardápio cadastrado\!','Se vira!',message,flags=re.IGNORECASE)
 
 # Look for important foods in the day menu
 for food in preferedFoods:
