@@ -13,7 +13,7 @@
 #	DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 #	modifycronjob "15 11,17 * * 1-5" 'eval "export $(egrep -z DBUS_SESSION_BUS_ADDRESS /proc/$(pgrep -u $LOGNAME gnome-session)/environ)";'" DISPLAY=:0; python '$DIR/bandecoWarning.py'" # Lunch & dinner warning
 #	sudo service cron start
-
+# This software is released under the GNU-GPL 3.0 or later.
 
 # --------------- User definitions ---------------
 
@@ -53,7 +53,7 @@ def systemMessage(title,message):
 	if platform.system()=='Linux':
 		#os.system('eval "export $(egrep -z DBUS_SESSION_BUS_ADDRESS /proc/$(pgrep -u $LOGNAME gnome-session)/environ)"; DISPLAY=:0; notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"')
 		# Necessary to set some enviroment variables
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification
 	elif platform.system()=='Windows':
 		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification
 	elif platform.system()=='Darwin':
