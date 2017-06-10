@@ -1,6 +1,7 @@
 #!/bin/bash
 # Auxiliary script to execute bandecoWarnin.py on Ubuntu. Used also to configure the cron jobs.
 # Written by Hildo Guillardi Júnior - FEEC - UNICAMP - 13/Apr/2017
+# This software is released under the GNU-GPL 3.0 or later.
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
