@@ -155,7 +155,7 @@ else:
 del menus
 
 # Remove/change unuserfull messages
-message = re.sub('traga sua caneca\!','',message,flags=re.IGNORECASE)
+message = re.sub('(\<[\w\s="]+\>)*[a-zç\s,]+caneca[\s*\!*]*(\<[\/\w\s]+\>)*','',message,flags=re.IGNORECASE) # New "caneca" message started in the week of 05/June/2017.
 message = re.sub('o cardápio contém glúte[nm][\s\S]+\.\s*','',message,flags=re.IGNORECASE)
 message = re.sub('contém traços de lactose[\s\S]+\.\s*','',message,flags=re.IGNORECASE)
 message = re.sub('contém ovos e lactose[\w\s]+\.\s*','',message,flags=re.IGNORECASE)
