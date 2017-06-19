@@ -162,6 +162,7 @@ message = re.sub('contém ovos e lactose[\w\s]+\.\s*','',message,flags=re.IGNORE
 message = re.sub('o cardápio vegetariano será servido somente no rs','',message,flags=re.IGNORECASE)
 message = re.sub('(\s*obs:\s*\.)','',message,flags=re.IGNORECASE) # If do not gave any observation, remove "obs:" of the message
 message = re.sub('não há cardápio cadastrado\!','Se vira!',message,flags=re.IGNORECASE)
+message = re.sub('<[\S\s]*>','',message,flags=re.IGNORECASE) # Remove spare <**>
 
 # Look for important foods in the day menu
 for food in preferedFoods:
