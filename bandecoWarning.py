@@ -17,8 +17,8 @@
 
 # --------------- User definitions ---------------
 
-preferedFoods = ('estrogonofe (?!vegetariano)[\s\S]+', 'alm[oô]ndega', 'carne alessa', 'carne assada', 'cocada','doce de leite','uva','SUCO: Roxo') # Use regular expressions language
-notPreferedFoods = ['salsicha']
+preferedFoods = ('estrogonofe (?!vegetariano)[\s\S]+', 'alm[oô]ndega', 'carne alessa', 'carne assada', 'cocada','doce de leite') # Use regular expressions language
+notPreferedFoods = ['salsicha','steak\s*\/\s*nuggets']
 
 link = "http://catedral.prefeitura.unicamp.br/cardapio.php" # Campinas campus
 #link = "http://www.pfl.unicamp.br/Restaurante/PF/view/site/cardapio.php" # Limeira campus
@@ -29,11 +29,14 @@ timeDinnerFinish = 20
 
 # --------------- Libraries ---------------
 
-import urllib # To read internet page
-import re # Regular expression
-import os # To access OS commands
-import platform # To check the system platform
-import datetime # To get system date-time and calculation with than
+try:
+    from urllib.request import urlopen # To read internet page on Python 3.
+except ImportError:
+    from urllib2 import urlopen  # To read internet page on Python 2.
+import re # Regular expression engine.
+import os # To access OS commands.
+import platform # To check the system platform.
+import datetime # To get system date-time and calculation with than.
 from datetime import datetime
 
 
@@ -44,8 +47,7 @@ from datetime import datetime
 juiceRealName={'uva':'roxo','abacaxi':'plutônio','limão':'branco','tangerina':'laranja 1','laranja':'amarelo 1','caju':'amarelo 2','maracujá':'amarelo 3','manga':'amarelo 4'}
 
 
-""" Ballon system message
-"""
+""" Ballon system message """
 def systemMessage(title,message):
 	#os.path.dirname(os.path.abspath(__file__))
 	#os.getcwd()
@@ -62,14 +64,12 @@ def systemMessage(title,message):
 		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification
 
 
-""" Capitilize una string: in the begging, after ?/!/. and space but not acronym, even when is using multiple spaces, end/letter of acronyms
-"""
+""" Capitilize una string: in the begging, after ?/!/. and space but not acronym, even when is using multiple spaces, end/letter of acronyms """
 def capitalize(s):
 	return re.sub(r"(^\s*\w)|(?<!\.\w)([\.?!]\s*)\w|\w(?:\.\w)|(?<=\w\.)\w", lambda x: x.group().upper(), s, flags=re.M)
 
 
-""" HTML character code to the ascii codes dictionary
-"""
+""" HTML character code to the ascii codes dictionary """
 htmlCodesDict = {'&Aacute;':u'\xc1', '&aacute;':u'\xe1', '&Agrave;':u'\xc0', '&Acirc;':u'\xc2', '&agrave;':u'\xe0', '&Acirc;':u'\xc2', '&acirc;':u'\xe2', '&Auml;':u'\xc4', '&auml;':u'\xe4', '&Atilde;':u'\xc3', '&atilde;':u'\xe3', '&Aring;':u'\xc5', '&aring;':u'\xe5', '&Aelig;':u'\xc6', '&aelig;':u'\xe6', '&Ccedil;':u'\xc7', '&ccedil;':u'\xe7', '&Eth;':u'\xd0', '&eth;':u'\xf0', '&Eacute;':u'\xc9', '&eacute;':u'\xe9', '&Egrave;':u'\xc8', '&egrave;':u'\xe8', '&Ecirc;':u'\xca', '&ecirc;':u'\xea', '&Euml;':u'\xcb', '&euml;':u'\xeb', '&Iacute;':u'\xcd', '&iacute;':u'\xed', '&Igrave;':u'\xcc', '&igrave;':u'\xec', '&Icirc;':u'\xce', '&icirc;':u'\xee', '&Iuml;':u'\xcf', '&iuml;':u'\xef', '&Ntilde;':u'\xd1', '&ntilde;':u'\xf1', '&Oacute;':u'\xd3', '&oacute;':u'\xf3', '&Ograve;':u'\xd2', '&ograve;':u'\xf2', '&Ocirc;':u'\xd4', '&ocirc;':u'\xf4', '&Ouml;':u'\xd6', '&ouml;':u'\xf6', '&Otilde;':u'\xd5', '&otilde;':u'\xf5', '&Oslash;':u'\xd8', '&oslash;':u'\xf8', '&szlig;':u'\xdf', '&Thorn;':u'\xde', '&thorn;':u'\xfe', '&Uacute;':u'\xda', '&uacute;':u'\xfa', '&Ugrave;':u'\xd9', '&ugrave;':u'\xf9', '&Ucirc;':u'\xdb', '&ucirc;':u'\xfb', '&Uuml;':u'\xdc', '&uuml;':u'\xfc', '&Yacute;':u'\xdd', '&yacute;':u'\xfd', '&yuml;':u'\xff', '&copy;':u'\xa9', '&reg;':u'\xae', '&trade;':u'\u2122', '&euro;':u'\u20ac', '&cent;':u'\xa2', '&pound;':u'\xa3', '&lsquo;':u'\u2018', '&rsquo;':u'\u2019', '&ldquo;':u'\u201c', '&rdquo;':u'\u201d', '&laquo;':u'\xab', '&raquo;':u'\xbb', '&mdash;':u'\u2014', '&ndash;':u'\u2013', '&deg;':u'\xb0', '&plusmn;':u'\xb1', '&frac14;':u'\xbc', '&frac12;':u'\xbd', '&frac34;':u'\xbe', '&times;':u'\xd7', '&divide;':u'\xf7', '&alpha;':u'\u03b1', '&beta;':u'\u03b2', '&infin':u'\u221e'}
 
 
@@ -84,10 +84,11 @@ if datetime.now().hour > timeDinnerFinish:
 	#link = link+'?d=dayFuture'
 
 # Read the page
-f = urllib.urlopen(link)
+f = urlopen(link)
 page = f.read()
 f.close()
 del f,link
+#page = page.decode('ascii') # Necessary to convert <class byte> array to <str>.
 
 # Separate the diferents menus of the day
 page = re.sub('<!--[\S\s]+?-->','',page) # Remove all the comments to simplify the parse, the Limeira web page is the same of Campinas page but with the vegetarian menu as comment
@@ -155,7 +156,7 @@ else:
 del menus
 
 # Remove/change unuserfull messages
-message = re.sub('(\<[\w\s="]+\>)*[a-zç\s,]+caneca[\s*\!*]*(\<[\/\w\s]+\>)*','',message,flags=re.IGNORECASE) # New "caneca" message started in the week of 05/June/2017.
+message = re.sub('(\<[\w\s="]+\>)*[a-zãç\s,]+caneca[\s*\!*]*(\<[\/\w\s]+\>)*','',message,flags=re.IGNORECASE) # New "caneca" message started in the week of 05/June/2017.
 message = re.sub('o cardápio contém glúte[nm][\s\S]+\.\s*','',message,flags=re.IGNORECASE)
 message = re.sub('contém traços de lactose[\s\S]+\.\s*','',message,flags=re.IGNORECASE)
 message = re.sub('contém ovos e lactose[\w\s]+\.\s*','',message,flags=re.IGNORECASE)
