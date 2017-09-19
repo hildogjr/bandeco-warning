@@ -20,11 +20,11 @@
 preferedFoods = ('estrogonofe (?!vegetariano)[\s\S]+', 'alm[oô]ndega', 'carne alessa', 'carne assada', 'cocada','doce de leite') # Use regular expressions language
 notPreferedFoods = ['salsicha','steak\s*\/\s*nuggets']
 
-link = "http://catedral.prefeitura.unicamp.br/cardapio.php" # Campinas campus
+link = 'https://www.prefeitura.unicamp.br/apps/site/cardapio.php' # Campinas campus
 #link = "http://www.pfl.unicamp.br/Restaurante/PF/view/site/cardapio.php" # Limeira campus
 
 timeLunchFinish = 14
-timeDinnerFinish = 20
+timeDinnerFinish = 19
 
 
 # --------------- Libraries ---------------
@@ -37,7 +37,7 @@ import re # Regular expression engine.
 import os # To access OS commands.
 import platform # To check the system platform.
 import datetime # To get system date-time and calculation with than.
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 # --------------- Especific funcitions, definitions 7 etc... ---------------
@@ -75,13 +75,19 @@ htmlCodesDict = {'&Aacute;':u'\xc1', '&aacute;':u'\xe1', '&Agrave;':u'\xc0', '&A
 
 # --------------- Main program ---------------
 
-# If is after the time of the dinner read the next day menu
-if datetime.now().hour > timeDinnerFinish:
+# If is after the time of the dinner read the next day menu.
+if datetime.now().hour >= timeDinnerFinish:
 	date_today = datetime.today()
-	shift = 1 + ((date_today.weekday()//4)*(6-date_today.weekday()))
-	#dayFuture = date_today+shift
-	#print dayFuture
-	#link = link+'?d=dayFuture'
+	if date_today.strftime("%a")=='Fri':
+		delta = 3
+	else:
+		delta = 1
+	dayFuture = date_today+timedelta(days=delta)
+	#print dayFuture.strftime("%Y-%m-%d")
+	link = link+'?d='+dayFuture.strftime("%Y-%m-%d")
+#	title = 'Próximo'
+#else:
+#	title = '' # No especial message title.
 
 # Read the page
 f = urlopen(link)
@@ -90,19 +96,19 @@ f.close()
 del f,link
 #page = page.decode('ascii') # Necessary to convert <class byte> array to <str>.
 
-# Separate the diferents menus of the day
-page = re.sub('<!--[\S\s]+?-->','',page) # Remove all the comments to simplify the parse, the Limeira web page is the same of Campinas page but with the vegetarian menu as comment
-#menuSearchString = '<td align="left" valign="top">[\t\r\n\s]*<table [width="[\d%]+" ]*class="fundo_cardapio">([\s\S\d\t\r\n]+?)<\/table>[\t\r\n\s]*<\/td>' # This just works in Campinas menus web page
+# Separate the diferents menus of the day.
+page = re.sub('<!--[\S\s]+?-->','',page) # Remove all the comments to simplify the parse, the Limeira web page is the same of Campinas page but with the vegetarian menu as comment.
+#menuSearchString = '<td align="left" valign="top">[\t\r\n\s]*<table [width="[\d%]+" ]*class="fundo_cardapio">([\s\S\d\t\r\n]+?)<\/table>[\t\r\n\s]*<\/td>' # This just works in Campinas menus web page.
 menuSearchString = '<td align="left" valign="top">[\t\r\n\s]*<table[\S\s]*? class="fundo_cardapio">([\s\S\d\t\r\n]+?)<\/table>[\t\r\n\s]*<\/td>'
 menus = re.findall(menuSearchString,page,flags=re.IGNORECASE)
 del page,menuSearchString
 
-# Parse and format the strings
+# Parse and format the strings.
 for count in range(len(menus)):
-	menus[count] = re.sub('((<\/td>[\r\n\s]*<\/tr>[\r\n\s]*<tr>[\r\n\s]*<td>))',', ',menus[count]) # Remove multitables between menu same category lines
-	menus[count] = re.sub('\t*\n*\r*(<td>)*(<\/td>)*(<tr>)*(<\/tr>)*(<strong>)*(<\/strong>)*(<br>)*(\s\s+)*(^\s*)*','',menus[count]) # Remove HTML tags, duplicated and initial spaces
-	menus[count] = menus[count].decode('windows-1252').lower()#.encode('utf-8') # Change the codec used in the string coding, it was used Windows codec
-	pattern = re.compile('|'.join(htmlCodesDict.keys())) # Compile the pattern to replace the HTML &**; codes found in some pages (Limeira's menus)
+	menus[count] = re.sub('((<\/td>[\r\n\s]*<\/tr>[\r\n\s]*<tr>[\r\n\s]*<td>))',', ',menus[count]) # Remove multitables between menu same category lines.
+	menus[count] = re.sub('\t*\n*\r*(<td>)*(<\/td>)*(<tr>)*(<\/tr>)*(<strong>)*(<\/strong>)*(<br>)*(\s\s+)*(^\s*)*','',menus[count]) # Remove HTML tags, duplicated and initial spaces.
+	menus[count] = menus[count].decode('windows-1252').lower()#.encode('utf-8') # Change the codec used in the string coding, it was used Windows codec.
+	pattern = re.compile('|'.join(htmlCodesDict.keys())) # Compile the pattern to replace the HTML &**; codes found in some pages (Limeira's menus).
 	menus[count] = pattern.sub(lambda x: htmlCodesDict[x.group()], menus[count]).encode('utf-8')
 	menus[count] = re.sub(',*\s*prato principal:\s*',', ',menus[count],re.IGNORECASE)
 	menus[count] = re.sub(',*\s*pts',', pts',menus[count],flags=re.IGNORECASE)
@@ -116,56 +122,56 @@ for count in range(len(menus)):
 	juice = re.findall('\r\nSUCO: (\S+)\r\n',menus[count])
 	if juice!=[] and juice[0] in juiceRealName:
 		menus[count] = re.sub('\r\nSUCO: (\S+)\r\n', '\r\nSUCO: '+juiceRealName[juice[0]]+'\r\n' ,menus[count]) # Real name of the juice
-	menus[count] = capitalize(menus[count]) # Capitilize the text to better presentation
+	menus[count] = capitalize(menus[count]) # Capitilize the text to better presentation.
 
 del juice,count
 
-# Filter the lunch and dinner menu, Campinas and Limeira campus (change the format of the page, Limeira don't have vegeratarian option)
-title=''
+# Filter the lunch and dinner menu, Campinas and Limeira campus (change the format of the page, Limeira don't have vegeratarian option).
+title='' # Now, the title receive the "Próximo" to indicate next day.
 message=''
 if len(menus)==4: # Campinas campus' menu
-	#message = 'ALMOÇO:\r\n' +  menus[0] + 'ALMOÇO VEGETARIANO:\r\n' + menus[1] + '\r\n\r\nJANTAR:\r\n' + menus[2] + '\r\n' + 'JANTAR VEGETARIANO:\r\n' + menus[3]
-	if datetime.now().hour > timeDinnerFinish: # Next day lunch menu
-		title = 'Almoço futuro UNICAMP'
+	#message = 'ALMOÇO:\r\n' +  menus[0] + 'ALMOÇO VEGETARIANO:\r\n' + menus[1] + '\r\n\r\nJANTAR:\r\n' + menus[2] + '\r\n' + 'JANTAR VEGETARIANO:\r\n' + menus[3].
+	if datetime.now().hour >= timeDinnerFinish: # Next day lunch menu.
+		title += 'Almoço futuro UNICAMP'
 		message = menus[0] + '\r\nVEGETARIANO: ' + re.findall('([\S\s]+)\r\nSUCO: ',menus[1],re.IGNORECASE)[0]
-	elif datetime.now().hour < timeLunchFinish: # Lunch menu
-		title = 'Almoço UNICAMP'
+	elif datetime.now().hour < timeLunchFinish: # Lunch menu.
+		title += 'Almoço UNICAMP'
 		message = menus[0] + '\r\nVEGETARIANO: ' + re.findall('([\S\s]+)\r\nSUCO: ',menus[1],re.IGNORECASE)[0]
-	else: # Dinner menu
-		title = 'Jantar UNICAMP'
+	else: # Dinner menu.
+		title += 'Jantar UNICAMP'
 		message = menus[2] + '\r\nVEGETARIANO: ' + re.findall('([\S\s]+)\r\nSUCO: ',menus[3],re.IGNORECASE)[0]	
-	message = re.sub('\r\nSUCO: ', ' - SUCO: ', message) # Better and short text view, remove duplicated juice information
+	message = re.sub('\r\nSUCO: ', ' - SUCO: ', message) # Better and short text view, remove duplicated juice information.
 	dessert = re.findall('\r\nSOBREMESA:\s*(\w+)?',message,re.IGNORECASE);
 	if len(dessert)==2 and dessert[0]==dessert[1]:
-		message = re.sub('\r\nSOBREMESA:\s*\w+$','',message) # Remove replicated information of dessert (sometimes normal and vegetarian menus have different desserts)
-elif len(menus)==2: # Limeira campus' menu
+		message = re.sub('\r\nSOBREMESA:\s*\w+$','',message) # Remove replicated information of dessert (sometimes normal and vegetarian menus have different desserts).
+elif len(menus)==2: # Limeira campus' menu.
 	#message = 'ALMOÇO:\r\n' +  menus[0] + '\r\n\r\nJANTAR:\r\n' + menus[1]
-	if datetime.now().hour > timeDinnerFinish: # Next day lunch menu
-		title = 'Almoço futuro UNICAMP'
+	if datetime.now().hour >= timeDinnerFinish: # Next day lunch menu.
+		title += 'Almoço futuro UNICAMP'
 		message = menus[0]
-	elif datetime.now().hour < timeLunchFinish: # Lunch menu
-		title = 'Almoço UNICAMP'
+	elif datetime.now().hour < timeLunchFinish: # Lunch menu.
+		title += 'Almoço UNICAMP'
 		message = menus[0]
-	else: # Dinner menu
-		title = 'Jantar UNICAMP'
+	else: # Dinner menu.
+		title += 'Jantar UNICAMP'
 		message = menus[1]
 else:
-	title = 'Cardápio'
+	title += 'Cardápio'
 	message = 'Error!!!'
 
 del menus
 
-# Remove/change unuserfull messages
+# Remove/change unuserfull messages.
 message = re.sub('(\<[\w\s="]+\>)*[a-zãç\s,]+caneca[\s*\!*]*(\<[\/\w\s]+\>)*','',message,flags=re.IGNORECASE) # New "caneca" message started in the week of 05/June/2017.
 message = re.sub('o cardápio contém glúte[nm][\s\S]+\.\s*','',message,flags=re.IGNORECASE)
 message = re.sub('contém traços de lactose[\s\S]+\.\s*','',message,flags=re.IGNORECASE)
 message = re.sub('contém ovos e lactose[\w\s]+\.\s*','',message,flags=re.IGNORECASE)
 message = re.sub('o cardápio vegetariano será servido somente no rs','',message,flags=re.IGNORECASE)
-message = re.sub('(\s*obs:\s*\.)','',message,flags=re.IGNORECASE) # If do not gave any observation, remove "obs:" of the message
+message = re.sub('(\s*obs:\s*\.)','',message,flags=re.IGNORECASE) # If do not gave any observation, remove "obs:" of the message.
 message = re.sub('não há cardápio cadastrado\!','Se vira!',message,flags=re.IGNORECASE)
-message = re.sub('<[\S\s]*?>','',message,flags=re.IGNORECASE) # Remove spare <**>
+message = re.sub('<[\S\s]*?>','',message,flags=re.IGNORECASE) # Remove spare <**>.
 
-# Look for important foods in the day menu
+# Look for important foods in the day menu.
 for food in preferedFoods:
 	if re.search(food,message,flags=re.IGNORECASE):
 		title = '\\o/ ' + title
@@ -174,5 +180,5 @@ for food in notPreferedFoods:
 		title = '=( ' + title
 del preferedFoods, notPreferedFoods
 
-systemMessage(title,message) # Put message on the screen
+systemMessage(title,message) # Put message on the screen.
 del title, message
