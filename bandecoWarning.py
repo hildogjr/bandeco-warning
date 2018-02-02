@@ -18,7 +18,7 @@
 # --------------- User definitions ---------------
 
 preferedFoods = ('estrogonofe (?!vegetariano)[\s\S]+', 'alm[oô]ndega', 'carne alessa', 'carne assada', 'cocada','doce de leite') # Use regular expressions language
-notPreferedFoods = ['salsicha','steak\s*\/\s*nuggets']
+notPreferedFoods = ['salsicha', 'steak', 'nuggets']
 
 link = 'https://www.prefeitura.unicamp.br/apps/site/cardapio.php' # Campinas campus
 #link = "http://www.pfl.unicamp.br/Restaurante/PF/view/site/cardapio.php" # Limeira campus
@@ -30,9 +30,10 @@ timeDinnerFinish = 19
 # --------------- Libraries ---------------
 
 try:
-    from urllib.request import urlopen # To read internet page on Python 3.
+	from urllib.request import urlopen # To read internet page on Python 3.
 except ImportError:
-    from urllib2 import urlopen  # To read internet page on Python 2.
+	from urllib2 import urlopen  # To read internet page on Python 2.
+from xml.sax.saxutils import unescape as unescapeHTMLcodes
 import re # Regular expression engine.
 import os # To access OS commands.
 import platform # To check the system platform.
@@ -44,7 +45,7 @@ from datetime import datetime, timedelta
 
 """ Popular names of the juices
 """
-juiceRealName={'uva':'roxo','abacaxi':'plutônio','limão':'branco','tangerina':'laranja 1','laranja':'amarelo 1','caju':'amarelo 2','maracujá':'amarelo 3','manga':'amarelo 4'}
+juiceRealName={'uva':'roxo','abacaxi':'plutônio','limão':'branco','tangerina':'laranja 1','acerola':'laranja 2','laranja':'amarelo 1','caju':'amarelo 2','maracujá':'amarelo 3','manga':'amarelo 4'}
 
 
 """ Ballon system message """
@@ -110,6 +111,7 @@ for count in range(len(menus)):
 	menus[count] = menus[count].decode('windows-1252').lower()#.encode('utf-8') # Change the codec used in the string coding, it was used Windows codec.
 	pattern = re.compile('|'.join(htmlCodesDict.keys())) # Compile the pattern to replace the HTML &**; codes found in some pages (Limeira's menus).
 	menus[count] = pattern.sub(lambda x: htmlCodesDict[x.group()], menus[count]).encode('utf-8')
+	#menus[count] = unescapeHTMLcodes(menus[count])
 	menus[count] = re.sub(',*\s*prato principal:\s*',', ',menus[count],re.IGNORECASE)
 	menus[count] = re.sub(',*\s*pts',', pts',menus[count],flags=re.IGNORECASE)
 	menus[count] = re.sub(',*\s*salada:\s*',' - ',menus[count],re.IGNORECASE)
