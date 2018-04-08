@@ -4,7 +4,8 @@
 #
 # Written by Hildo Guillardi Júnior - FEEC - UNICAMP - 05/Apr/2017
 # Python 2.7 + Ubuntu 16.04
-# Modified on /Apri/2017, working with Limeira's menu and capitalize the text.
+# Modified on ?/April/2017, working with Limeira's menu and capitalize the text.
+# Modified on 08/April/2018 to work with Python 3+.
 #
 # Installation tips: use the crontab to program the automatic messages
 #	cd . # Actual installation files folder
@@ -29,10 +30,11 @@ timeDinnerFinish = 19
 
 # --------------- Libraries ---------------
 
-try:
-	from urllib.request import urlopen # To read internet page on Python 3.
-except ImportError:
+from sys import version_info as pyVersion
+if pyVersion<(3,0):
 	from urllib2 import urlopen  # To read internet page on Python 2.
+else:
+	from urllib.request import urlopen # To read internet page on Python 3.
 from xml.sax.saxutils import unescape as unescapeHTMLcodes
 import re # Regular expression engine.
 import os # To access OS commands.
@@ -98,6 +100,8 @@ del f,link
 #page = page.decode('ascii') # Necessary to convert <class byte> array to <str>.
 
 # Separate the diferents menus of the day.
+if pyVersion>=(3,0):
+	page = page.decode('windows-1252') # UNICAMP use a Windows server fr this servce.
 page = re.sub('<!--[\S\s]+?-->','',page) # Remove all the comments to simplify the parse, the Limeira web page is the same of Campinas page but with the vegetarian menu as comment.
 #menuSearchString = '<td align="left" valign="top">[\t\r\n\s]*<table [width="[\d%]+" ]*class="fundo_cardapio">([\s\S\d\t\r\n]+?)<\/table>[\t\r\n\s]*<\/td>' # This just works in Campinas menus web page.
 menuSearchString = '<td align="left" valign="top">[\t\r\n\s]*<table[\S\s]*? class="fundo_cardapio">([\s\S\d\t\r\n]+?)<\/table>[\t\r\n\s]*<\/td>'
@@ -108,16 +112,20 @@ del page,menuSearchString
 for count in range(len(menus)):
 	menus[count] = re.sub('((<\/td>[\r\n\s]*<\/tr>[\r\n\s]*<tr>[\r\n\s]*<td>))',', ',menus[count]) # Remove multitables between menu same category lines.
 	menus[count] = re.sub('\t*\n*\r*(<td>)*(<\/td>)*(<tr>)*(<\/tr>)*(<strong>)*(<\/strong>)*(<br>)*(\s\s+)*(^\s*)*','',menus[count]) # Remove HTML tags, duplicated and initial spaces.
-	menus[count] = menus[count].decode('windows-1252').lower()#.encode('utf-8') # Change the codec used in the string coding, it was used Windows codec.
+	if pyVersion>=(3,0):
+		menus[count] = menus[count].lower()
+	else:
+		menus[count] = menus[count].decode('windows-1252').lower()#.encode('utf-8') # Change the codec used in the string coding, it was used Windows codec.
 	pattern = re.compile('|'.join(htmlCodesDict.keys())) # Compile the pattern to replace the HTML &**; codes found in some pages (Limeira's menus).
-	menus[count] = pattern.sub(lambda x: htmlCodesDict[x.group()], menus[count]).encode('utf-8')
+	if pyVersion<(3,0):
+		menus[count] = pattern.sub(lambda x: htmlCodesDict[x.group()], menus[count]).encode('utf-8')
 	#menus[count] = unescapeHTMLcodes(menus[count])
-	menus[count] = re.sub(',*\s*prato principal:\s*',', ',menus[count],re.IGNORECASE)
-	menus[count] = re.sub(',*\s*pts',', pts',menus[count],flags=re.IGNORECASE)
-	menus[count] = re.sub(',*\s*salada:\s*',' - ',menus[count],re.IGNORECASE)
-	menus[count] = re.sub(',*\s*sobremesa:\s*','\r\nSOBREMESA: ',menus[count],re.IGNORECASE)
-	menus[count] = re.sub(',*\s*suco:\s*','\r\nSUCO: ',menus[count],re.IGNORECASE)
-	menus[count] = re.sub(',*\s*observações:\s*','\r\n',menus[count],re.IGNORECASE)
+	menus[count] = re.sub(',*\s*prato principal:\s*', ', ', menus[count], re.IGNORECASE)
+	menus[count] = re.sub(',*\s*pts',', pts', menus[count], flags=re.IGNORECASE)
+	menus[count] = re.sub(',*\s*salada:\s*', ' - ',menus[count], re.IGNORECASE)
+	menus[count] = re.sub(',*\s*sobremesa:\s*', '\r\nSOBREMESA: ', menus[count], re.IGNORECASE)
+	menus[count] = re.sub(',*\s*suco:\s*', '\r\nSUCO: ', menus[count], re.IGNORECASE)
+	menus[count] = re.sub(',*\s*observações:\s*', '\r\n', menus[count], re.IGNORECASE)
 	#menus[count] = re.sub('\s*\r\n\s*','\r\n',menus[count])
 	#pattern = re.compile('|'.join(juiceRealName.keys()))
 	#menus[count] = pattern.sub(lambda x: juiceRealName[x.group()], menus[count])
@@ -135,17 +143,17 @@ if len(menus)==4: # Campinas campus' menu
 	#message = 'ALMOÇO:\r\n' +  menus[0] + 'ALMOÇO VEGETARIANO:\r\n' + menus[1] + '\r\n\r\nJANTAR:\r\n' + menus[2] + '\r\n' + 'JANTAR VEGETARIANO:\r\n' + menus[3].
 	if datetime.now().hour >= timeDinnerFinish: # Next day lunch menu.
 		title += 'Almoço futuro UNICAMP'
-		message = menus[0] + '\r\nVEGETARIANO: ' + re.findall('([\S\s]+)\r\nSUCO: ',menus[1],re.IGNORECASE)[0]
+		message = menus[0] + '\r\nVEGETARIANO: ' + re.findall('([\S\s]+)\r\nSUCO: ', menus[1], re.IGNORECASE)[0]
 	elif datetime.now().hour < timeLunchFinish: # Lunch menu.
 		title += 'Almoço UNICAMP'
-		message = menus[0] + '\r\nVEGETARIANO: ' + re.findall('([\S\s]+)\r\nSUCO: ',menus[1],re.IGNORECASE)[0]
+		message = menus[0] + '\r\nVEGETARIANO: ' + re.findall('([\S\s]+)\r\nSUCO: ', menus[1], re.IGNORECASE)[0]
 	else: # Dinner menu.
 		title += 'Jantar UNICAMP'
-		message = menus[2] + '\r\nVEGETARIANO: ' + re.findall('([\S\s]+)\r\nSUCO: ',menus[3],re.IGNORECASE)[0]	
+		message = menus[2] + '\r\nVEGETARIANO: ' + re.findall('([\S\s]+)\r\nSUCO: ', menus[3], re.IGNORECASE)[0]	
 	message = re.sub('\r\nSUCO: ', ' - SUCO: ', message) # Better and short text view, remove duplicated juice information.
-	dessert = re.findall('\r\nSOBREMESA:\s*(\w+)?',message,re.IGNORECASE);
+	dessert = re.findall('\r\nSOBREMESA:\s*(\w+)?', message, re.IGNORECASE);
 	if len(dessert)==2 and dessert[0]==dessert[1]:
-		message = re.sub('\r\nSOBREMESA:\s*\w+$','',message) # Remove replicated information of dessert (sometimes normal and vegetarian menus have different desserts).
+		message = re.sub('\r\nSOBREMESA:\s*\w+$', '', message) # Remove replicated information of dessert (sometimes normal and vegetarian menus have different desserts).
 elif len(menus)==2: # Limeira campus' menu.
 	#message = 'ALMOÇO:\r\n' +  menus[0] + '\r\n\r\nJANTAR:\r\n' + menus[1]
 	if datetime.now().hour >= timeDinnerFinish: # Next day lunch menu.
@@ -164,23 +172,28 @@ else:
 del menus
 
 # Remove/change unuserfull messages.
-message = re.sub('(\<[\w\s="]+\>)*[a-zãç\s,]+caneca[\s*\!*]*(\<[\/\w\s]+\>)*','',message,flags=re.IGNORECASE) # New "caneca" message started in the week of 05/June/2017.
-message = re.sub('o cardápio contém glúte[nm][\s\S]+\.\s*','',message,flags=re.IGNORECASE)
-message = re.sub('contém traços de lactose[\s\S]+\.\s*','',message,flags=re.IGNORECASE)
-message = re.sub('contém ovos e lactose[\w\s]+\.\s*','',message,flags=re.IGNORECASE)
-message = re.sub('o cardápio vegetariano será servido somente no rs','',message,flags=re.IGNORECASE)
-message = re.sub('(\s*obs:\s*\.)','',message,flags=re.IGNORECASE) # If do not gave any observation, remove "obs:" of the message.
-message = re.sub('não há cardápio cadastrado\!','Se vira!',message,flags=re.IGNORECASE)
-message = re.sub('<[\S\s]*?>','',message,flags=re.IGNORECASE) # Remove spare <**>.
+messagesRemove = (
+	'(\<[\w\s="]+\>)*[a-zãç\s,]+caneca[\s*\!*]*(\<[\/\w\s]+\>)*', # New "caneca" message started in the week of 05/June/2017.
+	'o cardápio contém glúte[nm][\s\S]+\.\s*',
+	'contém traços de lactose[\s\S]+\.\s*',
+	'contém ovos e lactose[\w\s]+\.\s*',
+	'o cardápio vegetariano será servido somente no rs',
+	'(\s*obs:\s*\.)', # If do not gave any observation, remove "obs:" of the message.
+	'<[\S\s]*?>',
+	)
+for m in messagesRemove:
+	message = re.sub(m,'', message, flags=re.IGNORECASE)
+
+message = re.sub('não há cardápio cadastrado\!','Se vira!', message, flags=re.IGNORECASE)
 
 # Look for important foods in the day menu.
 for food in preferedFoods:
-	if re.search(food,message,flags=re.IGNORECASE):
+	if re.search(food, message, flags=re.IGNORECASE):
 		title = '\\o/ ' + title
 for food in notPreferedFoods:
-	if re.search(food,message,flags=re.IGNORECASE):
+	if re.search(food, message, flags=re.IGNORECASE):
 		title = '=( ' + title
 del preferedFoods, notPreferedFoods
 
-systemMessage(title,message) # Put message on the screen.
+systemMessage(title, message) # Put message on the screen.
 del title, message
