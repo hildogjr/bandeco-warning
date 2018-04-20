@@ -31,16 +31,25 @@ timeDinnerFinish = 19
 # --------------- Libraries ---------------
 
 from sys import version_info as pyVersion
-if pyVersion<(3,0):
-	from urllib2 import urlopen  # To read internet page on Python 2.
-else:
+if pyVersion>(3,0):
 	from urllib.request import urlopen # To read internet page on Python 3.
+else:
+	from urllib2 import urlopen  # To read internet page on Python 2.
 from xml.sax.saxutils import unescape as unescapeHTMLcodes
 import re # Regular expression engine.
 import os # To access OS commands.
 import platform # To check the system platform.
 import datetime # To get system date-time and calculation with than.
 from datetime import datetime, timedelta
+from math import ceil
+if pyVersion>(3,0):
+	from itertools import accumulate as cumsum # Accumulative sum.
+else:
+	def cumsum(vector):
+		vectorAcc = 0
+		for item in vector:
+			vectorAcc += item
+			yield vectorAcc
 
 
 # --------------- Especific funcitions, definitions 7 etc... ---------------
@@ -57,14 +66,27 @@ def systemMessage(title,message):
 	#print os.path.dirname(os.path.abspath(__file__))
 	if platform.system()=='Linux':
 		#os.system('eval "export $(egrep -z DBUS_SESSION_BUS_ADDRESS /proc/$(pgrep -u $LOGNAME gnome-session)/environ)"; DISPLAY=:0; notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"')
-		# Necessary to set some enviroment variables
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification
+		# Necessary to set some enviroment variables.
+		# The maximum message length is 461 continuous characters or 459 if needed '...', each line with 49 maximum characters.
+		
+		# Count the message to not show the ending (the standard for `notify-send`is not show the beginning if have more than one line).
+		NS_MENS_MAX_LEN = 461 # Maximum continuous message for `notify-send`.
+		NS_LINE_MAX_LEN = 49.0 # Maximum line characters for `notify-send`. Necessary the `.0`to the division result in real without addition libraries to python (`from __future__ import division`).
+		NS_3DOT_LEN = 2  # 3-Dot characters equivalence in `notify-send`.
+		messageSpplited = re.split('\r*\n\r*', message)
+		messageSpplitedLengths = [ ceil( len(m)/NS_LINE_MAX_LEN ) for m in messageSpplited ]
+		if sum( messageSpplitedLengths ) > NS_MENS_MAX_LEN:
+			lengthLinesValid = [l for l in list(cumsum( messageSpplitedLengths )) if l >= 5]
+			message = '\n'.join( messageSpplited[:range(len(lengthLinesValid))] )
+			message = '\n' + messageSpplited[:len(lengthLinesValid)+1][0:lengthLinesValid[-1]+1-NS_3DOT_LEN] + '...'
+		
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification.
 	elif platform.system()=='Windows':
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification.
 	elif platform.system()=='Darwin':
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification
-	else: # Not tested
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification.
+	else: # Not tested.
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification.
 
 
 """ Capitilize una string: in the begging, after ?/!/. and space but not acronym, even when is using multiple spaces, end/letter of acronyms """
