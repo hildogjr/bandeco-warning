@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Print a message using the libraries of the operacional system with the next menu of the university's restaurant. Correct the name of the juices ;-)
+# Print a message using the libraries of the operational system with the next menu of the university's restaurant. Correct the name of the juices ;-)
 #
 # Written by Hildo Guillardi Júnior - FEEC - UNICAMP - 05/Apr/2017
 # Python 2.7 + Ubuntu 16.04
@@ -52,7 +52,7 @@ else:
 			yield vectorAcc
 
 
-# --------------- Especific funcitions, definitions 7 etc... ---------------
+# --------------- Specific functions, definitions 7 etc... ---------------
 
 """ Popular names of the juices
 """
@@ -66,7 +66,7 @@ def systemMessage(title,message):
 	#print os.path.dirname(os.path.abspath(__file__))
 	if platform.system()=='Linux':
 		#os.system('eval "export $(egrep -z DBUS_SESSION_BUS_ADDRESS /proc/$(pgrep -u $LOGNAME gnome-session)/environ)"; DISPLAY=:0; notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"')
-		# Necessary to set some enviroment variables.
+		# Necessary to set some environment variables.
 		# The maximum message length is 461 continuous characters or 459 if needed '...', each line with 49 maximum characters.
 		
 		# Count the message to not show the ending (the standard for `notify-send`is not show the beginning if have more than one line).
@@ -123,7 +123,7 @@ del f,link
 
 # Separate the diferents menus of the day.
 if pyVersion>=(3,0):
-	page = page.decode('windows-1252') # UNICAMP use a Windows server fr this servce.
+	page = page.decode('windows-1252') # UNICAMP use a Windows server fr this service.
 page = re.sub('<!--[\S\s]+?-->','',page) # Remove all the comments to simplify the parse, the Limeira web page is the same of Campinas page but with the vegetarian menu as comment.
 #menuSearchString = '<td align="left" valign="top">[\t\r\n\s]*<table [width="[\d%]+" ]*class="fundo_cardapio">([\s\S\d\t\r\n]+?)<\/table>[\t\r\n\s]*<\/td>' # This just works in Campinas menus web page.
 menuSearchString = '<td align="left" valign="top">[\t\r\n\s]*<table[\S\s]*? class="fundo_cardapio">([\s\S\d\t\r\n]+?)<\/table>[\t\r\n\s]*<\/td>'
@@ -132,7 +132,7 @@ del page,menuSearchString
 
 # Parse and format the strings.
 for count in range(len(menus)):
-	menus[count] = re.sub('((<\/td>[\r\n\s]*<\/tr>[\r\n\s]*<tr>[\r\n\s]*<td>))',', ',menus[count]) # Remove multitables between menu same category lines.
+	menus[count] = re.sub('((<\/td>[\r\n\s]*<\/tr>[\r\n\s]*<tr>[\r\n\s]*<td>))',', ',menus[count]) # Remove multi-tables between menu same category lines.
 	menus[count] = re.sub('\t*\n*\r*(<td>)*(<\/td>)*(<tr>)*(<\/tr>)*(<strong>)*(<\/strong>)*(<br>)*(\s\s+)*(^\s*)*','',menus[count]) # Remove HTML tags, duplicated and initial spaces.
 	if pyVersion>=(3,0):
 		menus[count] = menus[count].lower()
