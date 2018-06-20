@@ -6,6 +6,7 @@
 # Python 2.7 + Ubuntu 16.04
 # Modified on ?/April/2017, working with Limeira's menu and capitalize the text.
 # Modified on 08/April/2018 to work with Python 3+.
+# On 20/Jun/2018 fixed the exhibition of long messages on Linux.
 #
 # Installation tips: use the crontab to program the automatic messages
 #	cd . # Actual installation files folder
@@ -34,7 +35,7 @@ from sys import version_info as pyVersion
 if pyVersion>(3,0):
 	from urllib.request import urlopen # To read internet page on Python 3.
 else:
-	from urllib2 import urlopen  # To read internet page on Python 2.
+	from urllib2 import urlopen # To read internet page on Python 2.
 from xml.sax.saxutils import unescape as unescapeHTMLcodes
 import re # Regular expression engine.
 import os # To access OS commands.
@@ -75,18 +76,18 @@ def systemMessage(title,message):
 		NS_3DOT_LEN = 2  # 3-Dot characters equivalence in `notify-send`.
 		messageSpplited = re.split('\r*\n\r*', message)
 		messageSpplitedLengths = [ ceil( len(m)/NS_LINE_MAX_LEN ) for m in messageSpplited ]
-		if sum( messageSpplitedLengths ) > NS_MENS_MAX_LEN:
+		if (sum( messageSpplitedLengths )*NS_LINE_MAX_LEN) > NS_MENS_MAX_LEN:
 			lengthLinesValid = [l for l in list(cumsum( messageSpplitedLengths )) if l >= 5]
-			message = '\n'.join( messageSpplited[:range(len(lengthLinesValid))] )
-			message = '\n' + messageSpplited[:len(lengthLinesValid)+1][0:lengthLinesValid[-1]+1-NS_3DOT_LEN] + '...'
+			message = '\n'.join( messageSpplited[:range(len(lengthLinesValid))[1]] )
+			message += '\n' + messageSpplited[len(lengthLinesValid)+1][0:int(NS_LINE_MAX_LEN)+1-NS_3DOT_LEN] + '...'
 		
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification.
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u critical -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu balloon notification.
 	elif platform.system()=='Windows':
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification.
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu balloon notification.
 	elif platform.system()=='Darwin':
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification.
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu balloon notification.
 	else: # Not tested.
-		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu ballon notification.
+		os.system('notify-send "'+title+'" "'+message+'" -t 8 -u low -i "'+os.path.dirname(os.path.abspath(__file__))+'/logoUNICAMPfood.png"') # Linux-Ubuntu balloon notification.
 
 
 """ Capitilize una string: in the begging, after ?/!/. and space but not acronym, even when is using multiple spaces, end/letter of acronyms """
