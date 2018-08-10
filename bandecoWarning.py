@@ -201,9 +201,11 @@ messagesRemove = (
 	'contém traços de lactose[\s\S]+\.\s*',
 	'contém ovos e lactose[\w\s]+\.\s*',
 	'o cardápio vegetariano será servido somente no rs',
+	'<font.+=.+>.+\n*.+!(<\/font>)*', # Remove any RED warning: "semana contra o desperdício".
 	'(\s*obs:\s*\.)', # If do not gave any observation, remove "obs:" of the message.
 	'<[\S\s]*?>',
 	)
+print(message)
 for m in messagesRemove:
 	message = re.sub(m,'', message, flags=re.IGNORECASE)
 
