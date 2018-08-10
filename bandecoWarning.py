@@ -205,7 +205,6 @@ messagesRemove = (
 	'(\s*obs:\s*\.)', # If do not gave any observation, remove "obs:" of the message.
 	'<[\S\s]*?>',
 	)
-print(message)
 for m in messagesRemove:
 	message = re.sub(m,'', message, flags=re.IGNORECASE)
 
