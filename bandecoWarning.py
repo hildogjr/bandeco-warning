@@ -20,7 +20,7 @@
 # --------------- User definitions ---------------
 
 preferedFoods = ('estrogonofe (?!vegetariano)[\s\S]+', 'alm[oô]ndega', 'carne alessa', 'carne assada', 'cocada','doce de leite') # Use regular expressions language
-notPreferedFoods = ['salsicha', 'steak', 'nuggets']
+notPreferedFoods = ['salsicha', 'steak', 'chinelo', 'nuggets', 'bico de frango']
 
 link = 'https://www.prefeitura.unicamp.br/apps/site/cardapio.php' # Campinas campus
 #link = "http://www.pfl.unicamp.br/Restaurante/PF/view/site/cardapio.php" # Limeira campus
@@ -58,7 +58,7 @@ else:
 """ Popular names of the juices
 """
 juiceRealName={'uva':'roxo','abacaxi':'plutônio','limão':'branco','tangerina':'laranja 1','acerola':'laranja 2','laranja':'amarelo 1','caju':'amarelo 2','maracujá':'amarelo 3','manga':'amarelo 4'}
-
+foodRealName={'nuggets':'bico de frango','steak':'chinelo'}
 
 """ Ballon system message """
 def systemMessage(title,message):
@@ -154,7 +154,9 @@ for count in range(len(menus)):
 	#menus[count] = pattern.sub(lambda x: juiceRealName[x.group()], menus[count])
 	juice = re.findall('\r\nSUCO: (\S+)\r\n',menus[count])
 	if juice!=[] and juice[0] in juiceRealName:
-		menus[count] = re.sub('\r\nSUCO: (\S+)\r\n', '\r\nSUCO: '+juiceRealName[juice[0]]+'\r\n' ,menus[count]) # Real name of the juice
+		menus[count] = re.sub('\r\nSUCO: (\S+)\r\n', '\r\nSUCO: '+juiceRealName[juice[0]]+'\r\n', menus[count]) # Real name of the juice
+	for f in list(foodRealName):
+		menus[count] = re.sub(f, foodRealName[f], menus[count], re.IGNORECASE)
 	menus[count] = capitalize(menus[count]) # Capitilize the text to better presentation.
 
 del juice,count
